@@ -10,9 +10,10 @@ const getBaseUrl = () => {
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
-  throw new Error(
-    "No base url found, please set EXPO_PUBLIC_RORK_API_BASE_URL"
-  );
+  // Fallback for development - this prevents the app from crashing
+  // In production, you should set EXPO_PUBLIC_RORK_API_BASE_URL
+  console.warn('EXPO_PUBLIC_RORK_API_BASE_URL not set, using fallback URL');
+  return 'http://localhost:3000';
 };
 
 export const trpcClient = trpc.createClient({
@@ -20,6 +21,23 @@ export const trpcClient = trpc.createClient({
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      fetch: (url, options) => {
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), 10000);
+        });
+        
+        const fetchPromise = fetch(url, options);
+        
+        return Promise.race([fetchPromise, timeoutPromise]).catch(error => {
+          console.error('tRPC fetch error:', error);
+          // Return a mock response to prevent crashes
+          return new Response(JSON.stringify({ error: 'Network error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        });
+      },
     }),
   ],
 });

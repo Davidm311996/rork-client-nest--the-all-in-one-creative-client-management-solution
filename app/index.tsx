@@ -18,18 +18,31 @@ export default function SplashScreen() {
       try {
         // If there's an invite token, validate it first
         if (inviteToken) {
-          const isValidInvite = await validateInviteToken(inviteToken as string);
-          if (!isValidInvite) {
-            router.replace('/invite-expired');
-            return;
+          try {
+            const isValidInvite = await validateInviteToken(inviteToken as string);
+            if (!isValidInvite) {
+              router.replace('/invite-expired');
+              return;
+            }
+          } catch (error) {
+            console.error('Invite validation error:', error);
+            // Continue with normal flow if invite validation fails
           }
         }
 
         // Check onboarding status
-        await checkOnboardingStatus();
+        try {
+          await checkOnboardingStatus();
+        } catch (error) {
+          console.error('Onboarding check error:', error);
+        }
         
         // Check auth status
-        await checkAuthStatus();
+        try {
+          await checkAuthStatus();
+        } catch (error) {
+          console.error('Auth check error:', error);
+        }
         
         // Route user based on status
         setTimeout(() => {
@@ -45,10 +58,13 @@ export default function SplashScreen() {
           } else {
             router.replace('/(tabs)');
           }
-        }, 2000); // 2 second splash
+        }, 1500); // Reduced splash time
       } catch (error) {
         console.error('App initialization error:', error);
-        router.replace('/auth');
+        // Always fallback to auth screen
+        setTimeout(() => {
+          router.replace('/auth');
+        }, 1000);
       }
     };
 

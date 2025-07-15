@@ -132,8 +132,14 @@ export const useCurrencyStore = create<CurrencyState>()(
       initializeRates: () => {
         const { lastUpdated } = get();
         // Update rates if they haven't been updated in the last hour
+        // Don't block initialization - do this in background
         if (!lastUpdated || Date.now() - new Date(lastUpdated).getTime() > 60 * 60 * 1000) {
-          get().updateExchangeRates();
+          // Use setTimeout to avoid blocking initialization
+          setTimeout(() => {
+            get().updateExchangeRates().catch(error => {
+              console.error('Failed to update exchange rates:', error);
+            });
+          }, 1000);
         }
       },
     }),

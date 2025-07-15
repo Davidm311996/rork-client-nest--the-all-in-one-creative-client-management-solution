@@ -2,9 +2,9 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Platform, Dimensions } from "react-native";
+import { Platform, Dimensions, View, Text } from "react-native";
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCurrencyStore } from '@/store/currencyStore';
@@ -12,9 +12,17 @@ import { useProjectStore } from '@/store/projectStore';
 import CustomSplashScreen from '@/components/SplashScreen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { trpc, trpcClient } from '@/lib/trpc';
+import colors from '@/constants/colors';
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 export const unstable_settings = {
   initialRouteName: "index",
@@ -24,33 +32,74 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
+  const [loaded, fontError] = useFonts({
     ...FontAwesome.font,
   });
-  const { colors } = useThemeStore();
-  const { initializeRates } = useCurrencyStore();
-  const { fetchProjects } = useProjectStore();
+  const [appReady, setAppReady] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (error) {
-      console.error(error);
-      throw error;
+    if (fontError) {
+      console.error('Font loading error:', fontError);
+      // Don't throw the error to prevent app crash
+      // The app can still function without custom fonts
     }
-  }, [error]);
+  }, [fontError]);
 
   useEffect(() => {
-    // Initialize currency rates and projects on app start
-    initializeRates();
-    fetchProjects();
+    const initializeApp = async () => {
+      try {
+        // Initialize stores with error handling
+        const { initializeRates } = useCurrencyStore.getState();
+        const { fetchProjects } = useProjectStore.getState();
+        
+        // Initialize currency rates and projects on app start
+        // Don't await these to prevent blocking the UI
+        try {
+          initializeRates();
+        } catch (error) {
+          console.error('Currency initialization error:', error);
+        }
+        
+        try {
+          fetchProjects();
+        } catch (error) {
+          console.error('Projects initialization error:', error);
+        }
+        
+        // Small delay to ensure stores are initialized
+        await new Promise(resolve => setTimeout(resolve, 100));
+        setAppReady(true);
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+        setInitError(error instanceof Error ? error.message : 'Unknown error');
+        // Still mark as ready to prevent infinite loading
+        setAppReady(true);
+      }
+    };
+
+    initializeApp();
   }, []);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (loaded && appReady) {
+      SplashScreen.hideAsync().catch(error => {
+        console.error('Failed to hide splash screen:', error);
+      });
     }
-  }, [loaded]);
+  }, [loaded, appReady]);
 
-  if (!loaded) {
+  // Show error state if there's a critical error
+  if (initError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background, padding: 20 }}>
+        <Text style={{ color: colors.text.primary, fontSize: 18, fontWeight: '600', marginBottom: 10 }}>App Initialization Error</Text>
+        <Text style={{ color: colors.text.secondary, textAlign: 'center' }}>{initError}</Text>
+      </View>
+    );
+  }
+
+  if (!loaded || !appReady) {
     return <CustomSplashScreen />;
   }
 
@@ -80,7 +129,7 @@ function RootLayoutNav() {
             backgroundColor: colors.background,
             flex: 1,
           },
-          animation: "slide_from_right",
+          animation: Platform.OS === 'web' ? 'none' : "slide_from_right",
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
