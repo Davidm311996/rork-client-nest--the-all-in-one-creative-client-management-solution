@@ -21,22 +21,24 @@ export const trpcClient = trpc.createClient({
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
-      fetch: (url, options) => {
-        // Create a timeout promise
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), 10000);
-        });
-        
-        const fetchPromise = fetch(url, options);
-        
-        return Promise.race([fetchPromise, timeoutPromise]).catch(error => {
+      fetch: async (url, options) => {
+        try {
+          // Create a timeout promise
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout')), 10000);
+          });
+          
+          const fetchPromise = fetch(url, options);
+          
+          return await Promise.race([fetchPromise, timeoutPromise]);
+        } catch (error) {
           console.error('tRPC fetch error:', error);
           // Return a mock response to prevent crashes
           return new Response(JSON.stringify({ error: 'Network error' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
           });
-        });
+        }
       },
     }),
   ],
