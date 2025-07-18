@@ -31,13 +31,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       return;
     }
     
-    // Don't set loading state during initialization to avoid UI blocking
+    set({ isLoading: true, error: null });
     try {
       // In a real app, this would be an API call
-      // Skip delay during initialization
-      set({ projects: mockProjects, isLoading: false, error: null });
+      // Simulating API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      set({ projects: mockProjects, isLoading: false });
     } catch (error) {
-      console.error('Failed to fetch projects:', error);
       set({ error: 'Failed to fetch projects', isLoading: false });
     }
   },

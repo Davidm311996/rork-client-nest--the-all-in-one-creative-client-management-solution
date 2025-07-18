@@ -59,8 +59,7 @@ export default function ProjectDetailScreen() {
   const [showClientInfoModal, setShowClientInfoModal] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const messagesScrollRef = useRef<ScrollView>(null);
-  const keyboardOffsetRef = useRef(new Animated.Value(0));
-  const keyboardOffset = keyboardOffsetRef.current;
+  const keyboardOffset = useRef(new Animated.Value(0)).current;
   
   const isClient = user?.role === 'client';
   
@@ -98,7 +97,7 @@ export default function ProjectDetailScreen() {
       (event: KeyboardEvent) => {
         const height = event.endCoordinates.height;
         Animated.timing(keyboardOffset, {
-          toValue: -height,
+          toValue: -height + (Platform.OS === 'ios' ? 34 : 0), // Account for safe area
           duration: Platform.OS === 'ios' ? event.duration || 250 : 250,
           useNativeDriver: false,
         }).start();
@@ -496,7 +495,7 @@ export default function ProjectDetailScreen() {
         activeOpacity={0.7}
       >
         <View style={styles.clientAvatarContainer}>
-          <Avatar name={project.clientName} size={56} />
+          <Avatar name={project.clientName} size={48} />
         </View>
         <View style={styles.clientInfoContent}>
           <Text style={styles.clientInfoLabel}>Client</Text>
@@ -519,7 +518,7 @@ export default function ProjectDetailScreen() {
             </View>
             <View style={styles.invoiceInfo}>
               <Text style={typography.h4}>
-                {project.depositInvoiceId || project.finalInvoiceId ? 'Show Invoice' : 'Create Invoice'}
+                {project.depositInvoiceId || project.finalInvoiceId ? 'Invoice' : 'Create Invoice'}
               </Text>
               <Text style={[typography.body, { color: colors.text.secondary }]}>
                 {project.depositInvoiceId || project.finalInvoiceId 
@@ -546,7 +545,7 @@ export default function ProjectDetailScreen() {
             }}
           >
             <Text style={[typography.body, { color: colors.primary, fontWeight: '600' }]}>
-              {project.depositInvoiceId || project.finalInvoiceId ? 'Show Invoice' : 'Create Invoice'}
+              {project.depositInvoiceId || project.finalInvoiceId ? 'Show Invoice' : 'Create New Invoice'}
             </Text>
             <ChevronRight size={16} color={colors.primary} />
           </TouchableOpacity>
@@ -1057,8 +1056,13 @@ export default function ProjectDetailScreen() {
           )}
         </View>
         
-        {/* Chat Input Bar */}
-        <View style={styles.chatInputWrapper}>
+        {/* Static Chat Input Bar */}
+        <Animated.View 
+          style={[
+            styles.chatInputWrapper,
+            { transform: [{ translateY: keyboardOffset }] }
+          ]}
+        >
           <View style={styles.messageInputContainer}>
             <TouchableOpacity 
               style={styles.attachButton}
@@ -1124,7 +1128,7 @@ export default function ProjectDetailScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </Animated.View>
       </View>
     );
   };
@@ -1212,7 +1216,7 @@ export default function ProjectDetailScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.clientInfoModal}>
             <Text style={styles.clientInfoTitle}>{project.clientName}</Text>
-            <View style={styles.clientInfoModalContent}>
+            <View style={styles.clientInfoContent}>
               <View style={styles.clientInfoRow}>
                 <Text style={styles.clientInfoLabel}>Phone:</Text>
                 <Text style={styles.clientInfoValue}>{project.clientPhone || 'Not provided'}</Text>
@@ -1327,39 +1331,31 @@ const styles = StyleSheet.create({
   },
   clientInfoCard: {
     backgroundColor: colors.surface,
-    borderRadius: 32,
-    padding: 28,
+    borderRadius: 28,
+    padding: 24,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.border + '60',
+    borderColor: colors.border,
     shadowColor: colors.text.primary,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  clientAvatarContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.primary + '12',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 20,
-    borderWidth: 3,
-    borderColor: colors.primary + '25',
-    shadowColor: colors.primary,
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  clientAvatarContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+    borderWidth: 2,
+    borderColor: colors.primary + '30',
   },
   clientInfoContent: {
     flex: 1,
@@ -1744,10 +1740,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   chatInputWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+    minHeight: 80,
   },
   messageItem: {
     flexDirection: 'row',
@@ -1806,6 +1806,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     gap: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
   },
   messageInput: {
     flex: 1,
@@ -1996,14 +1997,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  clientInfoModalContent: {
-    marginTop: 4,
-  },
   clientInfoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
   clientInfoValue: {
     fontSize: 16,

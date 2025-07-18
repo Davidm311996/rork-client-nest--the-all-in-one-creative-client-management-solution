@@ -16,45 +16,26 @@ export default function SplashScreen() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('Starting app initialization...');
-        
         // If there's an invite token, validate it first
         if (inviteToken) {
-          try {
-            const isValidInvite = await validateInviteToken(inviteToken as string);
-            if (!isValidInvite) {
-              router.replace('/invite-expired');
-              return;
-            }
-          } catch (error) {
-            console.error('Invite validation error:', error);
-            // Continue with normal flow if invite validation fails
+          const isValidInvite = await validateInviteToken(inviteToken as string);
+          if (!isValidInvite) {
+            router.replace('/invite-expired');
+            return;
           }
         }
 
         // Check onboarding status
-        try {
-          await checkOnboardingStatus();
-        } catch (error) {
-          console.error('Onboarding check error:', error);
-        }
+        await checkOnboardingStatus();
         
         // Check auth status
-        try {
-          await checkAuthStatus();
-        } catch (error) {
-          console.error('Auth check error:', error);
-        }
-        
-        console.log('Routing user...', { isOnboardingComplete, isAuthenticated });
+        await checkAuthStatus();
         
         // Route user based on status
         setTimeout(() => {
           if (!isOnboardingComplete) {
-            console.log('Redirecting to onboarding');
             router.replace('/onboarding');
           } else if (!isAuthenticated) {
-            console.log('Redirecting to auth');
             // Pass invite token to auth screen if present
             if (inviteToken) {
               router.replace(`/auth?inviteToken=${inviteToken}`);
@@ -62,22 +43,17 @@ export default function SplashScreen() {
               router.replace('/auth');
             }
           } else {
-            console.log('Redirecting to tabs');
             router.replace('/(tabs)');
           }
-        }, 1000); // Reduced splash time
+        }, 2000); // 2 second splash
       } catch (error) {
         console.error('App initialization error:', error);
-        // Always fallback to auth screen
-        setTimeout(() => {
-          console.log('Fallback: redirecting to auth');
-          router.replace('/auth');
-        }, 500);
+        router.replace('/auth');
       }
     };
 
     initializeApp();
-  }, [inviteToken, isOnboardingComplete, isAuthenticated]);
+  }, [inviteToken]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

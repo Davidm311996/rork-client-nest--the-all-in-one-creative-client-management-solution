@@ -106,8 +106,8 @@ export default function NewInvoiceScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Only show Client & Project selection if not coming from project overview */}
-        {(!urlProjectId && !urlClientId) && (
+        {/* Only show Client & Project section if not coming from project overview */}
+        {!urlProjectId && (
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>Client & Project</Text>
             
@@ -202,7 +202,7 @@ export default function NewInvoiceScreen() {
         )}
 
         {/* Show selected client and project info when coming from project overview */}
-        {(urlProjectId || urlClientId) && (
+        {urlProjectId && (
           <Card style={styles.section}>
             <Text style={styles.sectionTitle}>Invoice For</Text>
             
