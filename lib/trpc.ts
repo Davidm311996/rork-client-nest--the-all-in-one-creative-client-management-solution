@@ -30,14 +30,15 @@ export const trpcClient = trpc.createClient({
           
           const fetchPromise = fetch(url, options);
           
-          return await Promise.race([fetchPromise, timeoutPromise]);
+          const response = await Promise.race([fetchPromise, timeoutPromise]);
+          return response as Response;
         } catch (error) {
           console.error('tRPC fetch error:', error);
           // Return a mock response to prevent crashes
           return new Response(JSON.stringify({ error: 'Network error' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
-          });
+          }) as Response;
         }
       },
     }),
