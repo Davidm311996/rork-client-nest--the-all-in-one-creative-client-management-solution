@@ -16,6 +16,8 @@ export default function SplashScreen() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        console.log('Starting app initialization...');
+        
         // If there's an invite token, validate it first
         if (inviteToken) {
           try {
@@ -44,11 +46,15 @@ export default function SplashScreen() {
           console.error('Auth check error:', error);
         }
         
+        console.log('Routing user...', { isOnboardingComplete, isAuthenticated });
+        
         // Route user based on status
         setTimeout(() => {
           if (!isOnboardingComplete) {
+            console.log('Redirecting to onboarding');
             router.replace('/onboarding');
           } else if (!isAuthenticated) {
+            console.log('Redirecting to auth');
             // Pass invite token to auth screen if present
             if (inviteToken) {
               router.replace(`/auth?inviteToken=${inviteToken}`);
@@ -56,20 +62,22 @@ export default function SplashScreen() {
               router.replace('/auth');
             }
           } else {
+            console.log('Redirecting to tabs');
             router.replace('/(tabs)');
           }
-        }, 1500); // Reduced splash time
+        }, 1000); // Reduced splash time
       } catch (error) {
         console.error('App initialization error:', error);
         // Always fallback to auth screen
         setTimeout(() => {
+          console.log('Fallback: redirecting to auth');
           router.replace('/auth');
-        }, 1000);
+        }, 500);
       }
     };
 
     initializeApp();
-  }, [inviteToken]);
+  }, [inviteToken, isOnboardingComplete, isAuthenticated]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

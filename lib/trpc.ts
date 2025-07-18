@@ -24,7 +24,7 @@ export const trpcClient = trpc.createClient({
       fetch: async (url, options) => {
         try {
           // Create a timeout promise
-          const timeoutPromise = new Promise<never>((_, reject) => {
+          const timeoutPromise = new Promise<Response>((_, reject) => {
             setTimeout(() => reject(new Error('Request timeout')), 10000);
           });
           

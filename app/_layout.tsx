@@ -49,31 +49,33 @@ export default function RootLayout() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Initialize stores with error handling
-        const { initializeRates } = useCurrencyStore.getState();
-        const { fetchProjects } = useProjectStore.getState();
+        console.log('Initializing app...');
         
-        // Initialize currency rates and projects on app start
-        // Don't await these to prevent blocking the UI
-        try {
-          initializeRates();
-        } catch (error) {
-          console.error('Currency initialization error:', error);
-        }
+        // Initialize stores with error handling - don't block on these
+        setTimeout(() => {
+          try {
+            const { initializeRates } = useCurrencyStore.getState();
+            initializeRates();
+          } catch (error) {
+            console.error('Currency initialization error:', error);
+          }
+        }, 100);
         
-        try {
-          fetchProjects();
-        } catch (error) {
-          console.error('Projects initialization error:', error);
-        }
+        setTimeout(() => {
+          try {
+            const { fetchProjects } = useProjectStore.getState();
+            fetchProjects();
+          } catch (error) {
+            console.error('Projects initialization error:', error);
+          }
+        }, 200);
         
-        // Small delay to ensure stores are initialized
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Mark app as ready immediately to prevent blocking
         setAppReady(true);
+        console.log('App initialization complete');
       } catch (error) {
         console.error('Failed to initialize app:', error);
-        setInitError(error instanceof Error ? error.message : 'Unknown error');
-        // Still mark as ready to prevent infinite loading
+        // Always mark as ready to prevent infinite loading
         setAppReady(true);
       }
     };
