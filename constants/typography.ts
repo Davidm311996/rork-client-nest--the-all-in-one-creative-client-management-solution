@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import colors from './colors';
+import { lightTheme, darkTheme } from './colors';
 
-export default StyleSheet.create({
+export const createTypography = (colors: typeof lightTheme | typeof darkTheme) => StyleSheet.create({
   h1: {
     fontSize: 28,
     fontWeight: '700',
@@ -54,3 +54,6 @@ export default StyleSheet.create({
     marginBottom: 6,
   },
 });
+
+// Default export for backward compatibility
+export default createTypography(lightTheme);

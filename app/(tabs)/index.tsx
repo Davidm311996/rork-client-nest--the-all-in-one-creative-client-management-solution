@@ -23,8 +23,8 @@ import { useSubscriptionStore } from '@/store/subscriptionStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCurrencyStore } from '@/store/currencyStore';
 import { SubscriptionTier } from '@/types/subscription';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
+import { createTypography } from '@/constants/typography';
 import { Alert } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -48,6 +48,8 @@ interface Activity {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { colors } = useThemeStore();
+  const typography = createTypography(colors);
   const { projects, fetchProjects } = useProjectStore();
   const { canCreateProject, getCurrentPlan, subscription } = useSubscriptionStore();
   const { user } = useAuthStore();
@@ -88,6 +90,313 @@ export default function HomeScreen() {
 
   const currentPlan = getCurrentPlan();
   const isProPlan = subscription.tier === 'mid' || subscription.tier === 'top';
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      padding: 24,
+      paddingBottom: 40,
+      flexGrow: 1,
+    },
+    emptyContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      padding: 24,
+      paddingBottom: 120,
+      minHeight: '100%',
+    },
+    emptyStateContainer: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyIconContainer: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: colors.primary + '20',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 32,
+    },
+    emptyTitle: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: colors.text.primary,
+      textAlign: 'center',
+      marginBottom: 12,
+      letterSpacing: -0.5,
+    },
+    emptyDescription: {
+      fontSize: 17,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+      marginBottom: 32,
+      paddingHorizontal: 20,
+    },
+    emptyActionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+      borderRadius: 16,
+      gap: 8,
+    },
+    emptyActionText: {
+      color: colors.text.inverse,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    welcomeBanner: {
+      marginBottom: 24,
+      paddingHorizontal: 4,
+    },
+    projectSlotsWarning: {
+      backgroundColor: colors.warning + '10',
+      borderWidth: 1,
+      borderColor: colors.warning + '30',
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 24,
+      marginTop: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    warningContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+      gap: 12,
+    },
+    warningText: {
+      fontSize: 14,
+      color: colors.warning,
+      fontWeight: '600',
+      flex: 1,
+    },
+    upgradeButton: {
+      backgroundColor: colors.warning,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 12,
+    },
+    upgradeButtonText: {
+      color: colors.text.inverse,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    welcomeText: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 8,
+      letterSpacing: -0.8,
+      lineHeight: 38,
+    },
+    welcomeSubtext: {
+      fontSize: 17,
+      color: colors.text.secondary,
+      lineHeight: 24,
+    },
+    metricsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 32,
+      gap: 12,
+    },
+    metricCard: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      padding: 20,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    metricIconContainer: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 12,
+    },
+    metricValue: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 6,
+      letterSpacing: -0.5,
+    },
+    metricLabel: {
+      fontSize: 13,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    section: {
+      marginBottom: 32,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+      paddingHorizontal: 4,
+    },
+    sectionTitle: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: colors.text.primary,
+      letterSpacing: -0.6,
+      marginBottom: 20,
+      paddingHorizontal: 4,
+    },
+    sectionContent: {
+      // Container for section content with proper spacing
+    },
+    seeAllText: {
+      fontSize: 15,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    actionsGrid: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 8,
+    },
+    actionButton: {
+      width: (width - 80) / 4, // Fit 4 on one line
+      height: (width - 80) / 4, // Perfect squares
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      opacity: 0.8, // Muted colors
+    },
+    actionButtonText: {
+      color: colors.text.inverse,
+      fontSize: 11,
+      fontWeight: '600',
+      marginTop: 8,
+      textAlign: 'center',
+      lineHeight: 14,
+    },
+    projectCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      padding: 24,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    projectClientName: {
+      fontSize: 19,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 6,
+      letterSpacing: -0.3,
+    },
+    projectDescription: {
+      fontSize: 15,
+      color: colors.text.secondary,
+      marginBottom: 16,
+      lineHeight: 22,
+    },
+    projectFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 4,
+    },
+    statusBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    statusText: {
+      fontSize: 12,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    projectDate: {
+      fontSize: 13,
+      color: colors.text.tertiary,
+      fontWeight: '500',
+    },
+    activityItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+      paddingHorizontal: 4,
+    },
+    activityIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    activityContent: {
+      flex: 1,
+    },
+    activityTitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: 4,
+      lineHeight: 20,
+    },
+    activityTime: {
+      fontSize: 13,
+      color: colors.text.tertiary,
+      fontWeight: '500',
+    },
+    earningsCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      padding: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    earningsHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    earningsAmount: {
+      fontSize: 36,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginLeft: 16,
+      letterSpacing: -1,
+    },
+    earningsLabel: {
+      fontSize: 15,
+      color: colors.text.secondary,
+      marginBottom: 6,
+      fontWeight: '500',
+    },
+    earningsGrowth: {
+      fontSize: 13,
+      color: colors.success,
+      fontWeight: '600',
+    },
+  });
 
   // Different quick actions for Creative vs Client
   const creativeQuickActions = [
@@ -600,309 +909,3 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 24,
-    paddingBottom: 40,
-    flexGrow: 1,
-  },
-  emptyContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
-    paddingBottom: 120,
-    minHeight: '100%',
-  },
-  emptyStateContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.primary + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
-  },
-  emptyTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: -0.5,
-  },
-  emptyDescription: {
-    fontSize: 17,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 32,
-    paddingHorizontal: 20,
-  },
-  emptyActionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 16,
-    gap: 8,
-  },
-  emptyActionText: {
-    color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  welcomeBanner: {
-    marginBottom: 24,
-    paddingHorizontal: 4,
-  },
-  projectSlotsWarning: {
-    backgroundColor: colors.warning + '10',
-    borderWidth: 1,
-    borderColor: colors.warning + '30',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    marginTop: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  warningContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  warningText: {
-    fontSize: 14,
-    color: colors.warning,
-    fontWeight: '600',
-    flex: 1,
-  },
-  upgradeButton: {
-    backgroundColor: colors.warning,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  upgradeButtonText: {
-    color: colors.text.inverse,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  welcomeText: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: 8,
-    letterSpacing: -0.8,
-    lineHeight: 38,
-  },
-  welcomeSubtext: {
-    fontSize: 17,
-    color: colors.text.secondary,
-    lineHeight: 24,
-  },
-  metricsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-    gap: 12,
-  },
-  metricCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  metricIconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  metricValue: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: 6,
-    letterSpacing: -0.5,
-  },
-  metricLabel: {
-    fontSize: 13,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 4,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text.primary,
-    letterSpacing: -0.6,
-    marginBottom: 20,
-    paddingHorizontal: 4,
-  },
-  sectionContent: {
-    // Container for section content with proper spacing
-  },
-  seeAllText: {
-    fontSize: 15,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  actionButton: {
-    width: (width - 80) / 4, // Fit 4 on one line
-    height: (width - 80) / 4, // Perfect squares
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    opacity: 0.8, // Muted colors
-  },
-  actionButtonText: {
-    color: colors.text.inverse,
-    fontSize: 11,
-    fontWeight: '600',
-    marginTop: 8,
-    textAlign: 'center',
-    lineHeight: 14,
-  },
-  projectCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  projectClientName: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: 6,
-    letterSpacing: -0.3,
-  },
-  projectDescription: {
-    fontSize: 15,
-    color: colors.text.secondary,
-    marginBottom: 16,
-    lineHeight: 22,
-  },
-  projectFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  projectDate: {
-    fontSize: 13,
-    color: colors.text.tertiary,
-    fontWeight: '500',
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 4,
-  },
-  activityIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  activityTime: {
-    fontSize: 13,
-    color: colors.text.tertiary,
-    fontWeight: '500',
-  },
-  earningsCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  earningsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  earningsAmount: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginLeft: 16,
-    letterSpacing: -1,
-  },
-  earningsLabel: {
-    fontSize: 15,
-    color: colors.text.secondary,
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  earningsGrowth: {
-    fontSize: 13,
-    color: colors.success,
-    fontWeight: '600',
-  },
-});

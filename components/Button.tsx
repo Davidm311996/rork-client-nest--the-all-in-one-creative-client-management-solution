@@ -9,8 +9,8 @@ import {
   Platform,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
+import { createTypography } from '@/constants/typography';
 
 type ButtonProps = {
   title: string;
@@ -37,6 +37,67 @@ export default function Button({
   leftIcon,
   rightIcon,
 }: ButtonProps) {
+  const { colors } = useThemeStore();
+  const typography = createTypography(colors);
+
+  const styles = StyleSheet.create({
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10,
+    },
+    primaryButton: {
+      backgroundColor: colors.primary,
+    },
+    secondaryButton: {
+      backgroundColor: colors.secondary,
+    },
+    outlineButton: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    textButton: {
+      backgroundColor: 'transparent',
+    },
+    disabledButton: {
+      opacity: 0.5,
+    },
+    smallButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+    },
+    mediumButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+    },
+    largeButton: {
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+    },
+    primaryText: {
+      color: colors.text.inverse,
+    },
+    secondaryText: {
+      color: colors.text.inverse,
+    },
+    outlineText: {
+      color: colors.primary,
+    },
+    textButtonText: {
+      color: colors.primary,
+    },
+    smallText: {
+      fontSize: 14,
+    },
+    mediumText: {
+      fontSize: 16,
+    },
+    largeText: {
+      fontSize: 18,
+    },
+  });
   const getButtonStyle = () => {
     switch (variant) {
       case 'primary':
@@ -138,61 +199,3 @@ export default function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-  },
-  secondaryButton: {
-    backgroundColor: colors.secondary,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  textButton: {
-    backgroundColor: 'transparent',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  smallButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  mediumButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  largeButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-  },
-  primaryText: {
-    color: colors.text.inverse,
-  },
-  secondaryText: {
-    color: colors.text.inverse,
-  },
-  outlineText: {
-    color: colors.primary,
-  },
-  textButtonText: {
-    color: colors.primary,
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  mediumText: {
-    fontSize: 16,
-  },
-  largeText: {
-    fontSize: 18,
-  },
-});

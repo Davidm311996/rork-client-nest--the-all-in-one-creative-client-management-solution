@@ -3,11 +3,13 @@ import { Tabs } from "expo-router";
 import { Platform, Dimensions, TouchableOpacity } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { Home, FolderOpen, MessageCircle, User } from "lucide-react-native";
-import colors from "@/constants/colors";
+import { useThemeStore } from '@/store/themeStore';
 
 const { height: screenHeight } = Dimensions.get('window');
 
 export default function TabLayout() {
+  const { colors } = useThemeStore();
+  
   return (
     <Tabs
       screenOptions={{

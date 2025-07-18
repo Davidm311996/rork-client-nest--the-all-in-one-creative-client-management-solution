@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Header from '@/components/Header';
-import colors from '@/constants/colors';
+
 import typography from '@/constants/typography';
 import { useThemeStore } from '@/store/themeStore';
 import { useCurrencyStore } from '@/store/currencyStore';
@@ -34,7 +34,7 @@ export default function SettingsScreen() {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [autoDownload, setAutoDownload] = useState(false);
   const [biometricAuth, setBiometricAuth] = useState(false);
-  const { theme, toggleTheme } = useThemeStore();
+  const { theme, toggleTheme, colors } = useThemeStore();
   const { selectedCurrency } = useCurrencyStore();
   const { subscription } = useSubscriptionStore();
   
@@ -86,6 +86,68 @@ export default function SettingsScreen() {
   const handleExportData = () => {
     Alert.alert('Export Data', 'Your data export will be emailed to you within 24 hours.');
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: 16,
+      paddingBottom: 100, // Extra padding for floating tab bar
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text.secondary,
+      marginBottom: 12,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    settingsCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      overflow: 'hidden',
+    },
+    settingItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    settingIconContainer: {
+      width: 40,
+      alignItems: 'center',
+    },
+    settingContent: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    settingTitle: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: colors.text.primary,
+    },
+    settingSubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    versionContainer: {
+      alignItems: 'center',
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    versionText: {
+      color: colors.text.tertiary,
+      fontSize: 12,
+    },
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -289,64 +351,3 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 100, // Extra padding for floating tab bar
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.secondary,
-    marginBottom: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  settingsCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  settingIconContainer: {
-    width: 40,
-    alignItems: 'center',
-  },
-  settingContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  settingSubtitle: {
-    fontSize: 14,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  versionContainer: {
-    alignItems: 'center',
-    paddingTop: 32,
-    paddingBottom: 16,
-  },
-  versionText: {
-    color: colors.text.tertiary,
-    fontSize: 12,
-  },
-});
