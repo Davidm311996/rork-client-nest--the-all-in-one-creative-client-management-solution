@@ -62,45 +62,149 @@ export default function InvoiceDetailScreen() {
   const isCreative = user?.role === 'creative';
   
   // Mock invoice data - in real app this would come from API/store
-  const [invoice, setInvoice] = useState<InvoiceDetail>({
-    id: Array.isArray(id) ? id[0] : id || '1',
-    invoiceNumber: 'INV-001',
-    clientId: '1',
-    clientName: 'Sarah Johnson',
-    clientEmail: 'sarah@example.com',
-    clientPhone: '+1 (555) 123-4567',
-    clientAddress: '123 Main St, New York, NY 10001',
-    projectTitle: 'Wedding Photography',
-    projectId: '1',
-    amount: 1200,
-    status: 'paid',
-    type: 'deposit',
-    createdDate: '2024-01-10',
-    dueDate: '2024-01-15',
-    paidDate: '2024-01-14',
-    description: 'Wedding photography services - deposit payment',
-    lineItems: [
-      {
+  const getInvoiceData = (invoiceId: string): InvoiceDetail => {
+    const invoices: Record<string, InvoiceDetail> = {
+      '1': {
         id: '1',
-        description: 'Wedding Photography Package',
-        quantity: 1,
-        rate: 1000,
-        amount: 1000
+        invoiceNumber: 'INV-001',
+        clientId: '1',
+        clientName: 'Sarah Johnson',
+        clientEmail: 'sarah@example.com',
+        clientPhone: '+1 (555) 123-4567',
+        clientAddress: '123 Main St, New York, NY 10001',
+        projectTitle: 'Wedding Photography',
+        projectId: '1',
+        amount: 1200,
+        status: 'paid',
+        type: 'deposit',
+        createdDate: '2024-01-10',
+        dueDate: '2024-01-15',
+        paidDate: '2024-01-14',
+        description: 'Wedding photography services - deposit payment',
+        lineItems: [
+          {
+            id: '1',
+            description: 'Wedding Photography Package',
+            quantity: 1,
+            rate: 1000,
+            amount: 1000
+          },
+          {
+            id: '2',
+            description: 'Additional Hours (2 hours)',
+            quantity: 2,
+            rate: 100,
+            amount: 200
+          }
+        ],
+        subtotal: 1200,
+        tax: 0,
+        total: 1200,
+        notes: 'Thank you for your business! Looking forward to capturing your special day.',
+        paymentTerms: 'Payment due within 5 days of invoice date.'
       },
-      {
+      '2': {
         id: '2',
-        description: 'Additional Hours (2 hours)',
-        quantity: 2,
-        rate: 100,
-        amount: 200
+        invoiceNumber: 'INV-002',
+        clientId: '2',
+        clientName: 'Emma Chen',
+        clientEmail: 'emma@coastalcafe.com',
+        clientPhone: '+1 (555) 987-6543',
+        clientAddress: '456 Ocean Drive, Santa Monica, CA 90401',
+        projectTitle: 'Product Photography',
+        projectId: '2',
+        amount: 800,
+        status: 'pending',
+        type: 'final',
+        createdDate: '2024-01-25',
+        dueDate: '2024-02-01',
+        description: 'Product photography services - final payment',
+        lineItems: [
+          {
+            id: '1',
+            description: 'Product Photography Session',
+            quantity: 1,
+            rate: 800,
+            amount: 800
+          }
+        ],
+        subtotal: 800,
+        tax: 0,
+        total: 800,
+        notes: 'Final payment for product photography session.',
+        paymentTerms: 'Payment due within 7 days of invoice date.'
+      },
+      '3': {
+        id: '3',
+        invoiceNumber: 'INV-003',
+        clientId: '3',
+        clientName: 'Jason Miller',
+        clientEmail: 'jason@apexfitness.com',
+        clientPhone: '+1 (555) 456-7890',
+        clientAddress: '789 Studio Lane, Los Angeles, CA 90028',
+        projectTitle: 'Website Redesign',
+        projectId: '3',
+        amount: 500,
+        status: 'paid',
+        type: 'milestone',
+        createdDate: '2024-01-15',
+        dueDate: '2024-01-20',
+        paidDate: '2024-01-19',
+        description: 'Website redesign services - milestone payment',
+        lineItems: [
+          {
+            id: '1',
+            description: 'Website Design Phase 1',
+            quantity: 1,
+            rate: 500,
+            amount: 500
+          }
+        ],
+        subtotal: 500,
+        tax: 0,
+        total: 500,
+        notes: 'Milestone payment for initial design phase.',
+        paymentTerms: 'Payment due within 5 days of invoice date.'
+      },
+      '4': {
+        id: '4',
+        invoiceNumber: 'INV-004',
+        clientId: '4',
+        clientName: 'Jason Miller',
+        clientEmail: 'jason@apexfitness.com',
+        clientPhone: '+1 (555) 321-0987',
+        clientAddress: '789 Fitness Ave, Los Angeles, CA 90028',
+        projectTitle: 'Website Redesign',
+        projectId: '4',
+        amount: 2000,
+        status: 'paid',
+        type: 'final',
+        createdDate: '2024-08-15',
+        dueDate: '2024-08-20',
+        paidDate: '2024-08-18',
+        description: 'Website redesign services - final payment',
+        lineItems: [
+          {
+            id: '1',
+            description: 'Website Development & Launch',
+            quantity: 1,
+            rate: 2000,
+            amount: 2000
+          }
+        ],
+        subtotal: 2000,
+        tax: 0,
+        total: 2000,
+        notes: 'Final payment for website redesign project. Thank you for your business!',
+        paymentTerms: 'Payment due within 5 days of invoice date.'
       }
-    ],
-    subtotal: 1200,
-    tax: 0,
-    total: 1200,
-    notes: 'Thank you for your business! Looking forward to capturing your special day.',
-    paymentTerms: 'Payment due within 5 days of invoice date.'
-  });
+    };
+    
+    return invoices[invoiceId] || invoices['1']; // Default to first invoice if not found
+  };
+  
+  const invoiceId = Array.isArray(id) ? id[0] : id || '1';
+  const [invoice, setInvoice] = useState<InvoiceDetail>(getInvoiceData(invoiceId));
 
   const getStatusColor = (status: InvoiceDetail['status']) => {
     switch (status) {
@@ -266,7 +370,7 @@ export default function InvoiceDetailScreen() {
   // Mock function to update recent activity
   const updateRecentActivity = (activity: any) => {
     // In a real app, this would update the activity store
-    // console.log('Activity updated:', activity);
+    console.log('Activity updated:', activity);
   };
 
   const formatDate = (dateString: string) => {

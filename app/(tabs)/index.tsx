@@ -488,33 +488,37 @@ export default function HomeScreen() {
 
     // Get recent payments based on project payment status
     projects.forEach(project => {
-      if (project.paymentStatus === 'Final Paid') {
+      if (project.paymentStatus === 'Final Paid' && project.finalInvoiceId) {
+        // Map project invoice IDs to payment system IDs
+        const invoiceId = getInvoiceIdFromProject(project.finalInvoiceId, 'final');
         activities.push({
           id: `payment_final_${project.id}`,
           title: `Invoice paid by ${project.clientName}`,
           time: '1 day ago',
           icon: <Coins size={20} color={colors.success} />,
-          route: `/payments?clientId=${project.clientId}&type=final&projectId=${project.id}`,
+          route: `/invoice/${invoiceId}`,
           timestamp: Date.now() - (24 * 60 * 60 * 1000),
           type: 'payment',
           projectId: project.id,
           clientId: project.clientId,
           paymentType: 'final',
-          invoiceId: project.finalInvoiceId,
+          invoiceId: invoiceId,
         });
-      } else if (project.paymentStatus === 'Deposit Paid') {
+      } else if (project.paymentStatus === 'Deposit Paid' && project.depositInvoiceId) {
+        // Map project invoice IDs to payment system IDs
+        const invoiceId = getInvoiceIdFromProject(project.depositInvoiceId, 'deposit');
         activities.push({
           id: `payment_deposit_${project.id}`,
           title: `Deposit paid by ${project.clientName}`,
           time: '2 days ago',
           icon: <Coins size={20} color={colors.success} />,
-          route: `/payments?clientId=${project.clientId}&type=deposit&projectId=${project.id}`,
+          route: `/invoice/${invoiceId}`,
           timestamp: Date.now() - (2 * 24 * 60 * 60 * 1000),
           type: 'payment',
           projectId: project.id,
           clientId: project.clientId,
           paymentType: 'deposit',
-          invoiceId: project.depositInvoiceId,
+          invoiceId: invoiceId,
         });
       }
     });
@@ -599,6 +603,19 @@ export default function HomeScreen() {
     return activities
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 3);
+  };
+  
+  // Helper function to map project invoice IDs to payment system IDs
+  const getInvoiceIdFromProject = (projectInvoiceId: string, type: 'deposit' | 'final'): string => {
+    // Map project invoice IDs to actual payment IDs from the payments system
+    const invoiceMapping: Record<string, string> = {
+      'invoice_1': '1', // Sarah Johnson - Wedding Photography deposit
+      'invoice_3': '3', // Bloom Boutique - Product Photography deposit  
+      'invoice_4': '1', // Apex Fitness - Website Redesign deposit (same client as Sarah)
+      'invoice_5': '4', // Apex Fitness - Website Redesign final
+    };
+    
+    return invoiceMapping[projectInvoiceId] || '1'; // Default to first invoice if not found
   };
   
   const recentActivity: Activity[] = generateRecentActivity();
