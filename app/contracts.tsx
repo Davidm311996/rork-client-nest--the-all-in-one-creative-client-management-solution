@@ -1,30 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, FilePlus, FileCheck } from 'lucide-react-native';
+import { Plus, FilePlus, FileCheck, Lock } from 'lucide-react-native';
 import { useProjectStore } from '@/store/projectStore';
+import { useSubscriptionStore } from '@/store/subscriptionStore';
 import Header from '@/components/Header';
 import EmptyState from '@/components/EmptyState';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 import { Project } from '@/types/project';
+import { SubscriptionTier } from '@/types/subscription';
 
 export default function ContractsScreen() {
   const router = useRouter();
   const { projects, isLoading, fetchProjects } = useProjectStore();
+  const { canUseFeature, getCurrentPlan, upgradeTier } = useSubscriptionStore();
   const params = useLocalSearchParams();
   const contractId = params.contractId as string;
   const signed = params.signed as string;
   const projectId = params.projectId as string;
   const clientId = params.clientId as string;
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  const canUseContracts = canUseFeature('contracts');
+  const currentPlan = getCurrentPlan();
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  const handleUpgrade = async (tier: SubscriptionTier) => {
+    setShowUpgradePrompt(false);
+    try {
+      await upgradeTier(tier);
+      // After successful upgrade, user can access contracts
+    } catch (error) {
+      Alert.alert('Error', 'Upgrade failed. Please try again.');
+    }
+  };
+
+  const handleNewContract = () => {
+    if (!canUseContracts) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    router.push('/new-project');
+  };
 
   // Filter projects that have contracts (either signed or pending)
   let contractProjects = projects.filter(
@@ -142,16 +168,35 @@ export default function ContractsScreen() {
           !clientId && !projectId ? (
             <Button
               title="New"
-              onPress={() => router.push('/new-project')}
-              variant="primary"
+              onPress={handleNewContract}
+              variant={canUseContracts ? "primary" : "outline"}
               size="small"
-              leftIcon={<Plus size={16} color={colors.text.inverse} />}
+              leftIcon={canUseContracts ? <Plus size={16} color={colors.text.inverse} /> : <Lock size={16} color={colors.text.secondary} />}
             />
           ) : undefined
         }
       />
 
-      {isLoading ? (
+      {!canUseContracts ? (
+        <View style={styles.restrictedContainer}>
+          <View style={styles.restrictedContent}>
+            <Lock size={64} color={colors.text.tertiary} />
+            <Text style={styles.restrictedTitle}>Contracts Unavailable</Text>
+            <Text style={styles.restrictedDescription}>
+              Contracts are available on Professional and Studio plans. Upgrade to create and manage digital contracts.
+            </Text>
+            <Button
+              title="Upgrade to Professional"
+              onPress={() => setShowUpgradePrompt(true)}
+              variant="primary"
+              style={styles.upgradeButton}
+            />
+            <Text style={styles.planInfo}>
+              Current plan: {currentPlan.name}
+            </Text>
+          </View>
+        </View>
+      ) : isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -174,10 +219,18 @@ export default function ContractsScreen() {
               : "You haven't created any contracts yet. Start by creating a new project with a contract."
           }
           actionLabel={!clientId && !projectId ? "Create Contract" : undefined}
-          onAction={!clientId && !projectId ? () => router.push('/new-project') : undefined}
+          onAction={!clientId && !projectId ? handleNewContract : undefined}
           icon={<FilePlus size={32} color={colors.primary} />}
         />
       )}
+      <UpgradePrompt
+        visible={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        onUpgrade={handleUpgrade}
+        title="Unlock Digital Contracts"
+        description="Create professional contracts, get them signed digitally, and manage your agreements all in one place."
+        suggestedTier="mid"
+      />
     </SafeAreaView>
   );
 }
@@ -247,5 +300,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  restrictedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  restrictedContent: {
+    alignItems: 'center',
+    maxWidth: 300,
+  },
+  restrictedTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginTop: 24,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  restrictedDescription: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  upgradeButton: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  planInfo: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    textAlign: 'center',
   },
 });

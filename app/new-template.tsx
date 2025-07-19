@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Save, Eye } from 'lucide-react-native';
+import { Save, Eye, Lock } from 'lucide-react-native';
+import { useSubscriptionStore } from '@/store/subscriptionStore';
 import Header from '@/components/Header';
 import Button from '@/components/Button';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 import { CONTRACT_VARIABLES } from '@/types/contract';
+import { SubscriptionTier } from '@/types/subscription';
 
 export default function NewTemplateScreen() {
   const router = useRouter();
+  const { canUseFeature, getCurrentPlan, upgradeTier, subscription } = useSubscriptionStore();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
@@ -43,7 +48,51 @@ Client Signature: _________________ Date: [CURRENT_DATE]
 Service Provider Signature: _________________ Date: [CURRENT_DATE]
 [BUSINESS_NAME]`);
 
+  const canUseContracts = canUseFeature('contracts');
+  const currentPlan = getCurrentPlan();
+  const isProPlan = subscription.tier === 'mid';
+  const isStudioPlan = subscription.tier === 'top';
+  
+  // Check if user can create more templates (Professional plan limit: 5 custom templates)
+  const canCreateMoreTemplates = !isProPlan || isStudioPlan; // Simplified for demo
+
+  useEffect(() => {
+    if (!canUseContracts) {
+      Alert.alert(
+        'Feature Unavailable',
+        'Contract templates are available on Professional and Studio plans.',
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    }
+  }, [canUseContracts, router]);
+
+  const handleUpgrade = async (tier: SubscriptionTier) => {
+    setShowUpgradePrompt(false);
+    try {
+      await upgradeTier(tier);
+    } catch (error) {
+      Alert.alert('Error', 'Upgrade failed. Please try again.');
+    }
+  };
+
   const handleSave = () => {
+    if (!canUseContracts) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
+    if (!canCreateMoreTemplates) {
+      Alert.alert(
+        'Template Limit Reached',
+        'Professional plan allows up to 5 custom templates. Upgrade to Studio for unlimited templates.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => setShowUpgradePrompt(true) }
+        ]
+      );
+      return;
+    }
+    
     if (!templateName.trim()) {
       Alert.alert('Error', 'Please enter a template name.');
       return;
@@ -61,6 +110,11 @@ Service Provider Signature: _________________ Date: [CURRENT_DATE]
   };
 
   const handlePreview = () => {
+    if (!canUseContracts) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
     if (!templateName.trim() || !templateContent.trim()) {
       Alert.alert('Error', 'Please fill in the template name and content before previewing.');
       return;
@@ -69,6 +123,40 @@ Service Provider Signature: _________________ Date: [CURRENT_DATE]
     // For preview, we'll use a temporary ID
     router.push(`/template-preview?id=new&name=${encodeURIComponent(templateName)}&content=${encodeURIComponent(templateContent)}`);
   };
+
+  if (!canUseContracts) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <Header title="New Template" showBackButton />
+        <View style={styles.restrictedContainer}>
+          <View style={styles.restrictedContent}>
+            <Lock size={64} color={colors.text.tertiary} />
+            <Text style={styles.restrictedTitle}>Contract Templates Unavailable</Text>
+            <Text style={styles.restrictedDescription}>
+              Contract templates are available on Professional and Studio plans. Create reusable templates to streamline your workflow.
+            </Text>
+            <Button
+              title="Upgrade to Professional"
+              onPress={() => setShowUpgradePrompt(true)}
+              variant="primary"
+              style={styles.upgradeButton}
+            />
+            <Text style={styles.planInfo}>
+              Current plan: {currentPlan.name}
+            </Text>
+          </View>
+        </View>
+        <UpgradePrompt
+          visible={showUpgradePrompt}
+          onClose={() => setShowUpgradePrompt(false)}
+          onUpgrade={handleUpgrade}
+          title="Unlock Contract Templates"
+          description="Create reusable contract templates to streamline your workflow and maintain consistency."
+          suggestedTier="mid"
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -88,9 +176,9 @@ Service Provider Signature: _________________ Date: [CURRENT_DATE]
             <Button
               title="Save"
               onPress={handleSave}
-              variant="primary"
+              variant={canCreateMoreTemplates ? "primary" : "outline"}
               size="small"
-              leftIcon={<Save size={16} color={colors.text.inverse} />}
+              leftIcon={canCreateMoreTemplates ? <Save size={16} color={colors.text.inverse} /> : <Lock size={16} color={colors.text.secondary} />}
             />
           </View>
         }
@@ -152,7 +240,26 @@ Service Provider Signature: _________________ Date: [CURRENT_DATE]
             ))}
           </View>
         </View>
+        
+        {/* Template limit warning for Professional plan */}
+        {isProPlan && !canCreateMoreTemplates && (
+          <View style={styles.limitWarning}>
+            <Text style={styles.limitWarningText}>
+              Professional plan: Template limit reached (5/5)
+              {' • Upgrade to Studio for unlimited templates'}
+            </Text>
+          </View>
+        )}
       </ScrollView>
+      
+      <UpgradePrompt
+        visible={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        onUpgrade={handleUpgrade}
+        title={!canUseContracts ? "Unlock Contract Templates" : "Upgrade for Unlimited Templates"}
+        description={!canUseContracts ? "Create reusable contract templates to streamline your workflow and maintain consistency." : "Professional plan limits you to 5 custom templates. Upgrade to Studio for unlimited templates."}
+        suggestedTier={!canUseContracts ? "mid" : "top"}
+      />
     </SafeAreaView>
   );
 }
@@ -235,5 +342,54 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: colors.primary,
+  },
+  restrictedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  restrictedContent: {
+    alignItems: 'center',
+    maxWidth: 300,
+  },
+  restrictedTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginTop: 24,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  restrictedDescription: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  upgradeButton: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  planInfo: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    textAlign: 'center',
+  },
+  limitWarning: {
+    backgroundColor: colors.warning + '10',
+    borderWidth: 1,
+    borderColor: colors.warning + '30',
+    borderRadius: 12,
+    padding: 16,
+    margin: 16,
+    marginTop: 0,
+  },
+  limitWarningText: {
+    fontSize: 14,
+    color: colors.warning,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

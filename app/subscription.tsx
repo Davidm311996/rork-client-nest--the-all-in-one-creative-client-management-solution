@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Crown, Check, Star } from 'lucide-react-native';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
-import { SUBSCRIPTION_PLANS, SubscriptionTier, getSubscriptionPlans } from '@/types/subscription';
+import { SubscriptionTier, getSubscriptionPlans } from '@/types/subscription';
 import { useCurrencyStore } from '@/store/currencyStore';
 import Header from '@/components/Header';
 import Button from '@/components/Button';
@@ -59,7 +59,7 @@ export default function SubscriptionScreen() {
     return value.toString();
   };
 
-  const renderPlanCard = (plan: typeof SUBSCRIPTION_PLANS[0]) => {
+  const renderPlanCard = (plan: typeof plansInCurrency[0]) => {
     const isCurrentPlan = plan.id === subscription.tier;
     const isUpgrading = isLoading && selectedTier === plan.id;
     
@@ -188,7 +188,7 @@ export default function SubscriptionScreen() {
         </View>
         
         <View style={styles.plansContainer}>
-          {SUBSCRIPTION_PLANS.map(renderPlanCard)}
+          {plansInCurrency.map(renderPlanCard)}
         </View>
         
         {subscription.tier !== 'free' && !subscription.cancelAtPeriodEnd && (

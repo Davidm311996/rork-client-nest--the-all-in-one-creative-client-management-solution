@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, FileText, Edit, Trash2, Copy, Eye } from 'lucide-react-native';
+import { Plus, FileText, Edit, Trash2, Copy, Eye, Lock } from 'lucide-react-native';
+import { useSubscriptionStore } from '@/store/subscriptionStore';
 import Header from '@/components/Header';
 import EmptyState from '@/components/EmptyState';
 import Button from '@/components/Button';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 import { ContractTemplate } from '@/types/contract';
+import { SubscriptionTier } from '@/types/subscription';
 
 const mockTemplates: ContractTemplate[] = [
   {
@@ -830,7 +833,18 @@ Producer Signature: _________________________ Date: _____________
 
 export default function ContractTemplatesScreen() {
   const router = useRouter();
+  const { canUseFeature, getCurrentPlan, upgradeTier, subscription } = useSubscriptionStore();
   const [templates, setTemplates] = useState<ContractTemplate[]>(mockTemplates);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  const canUseContracts = canUseFeature('contracts');
+  const currentPlan = getCurrentPlan();
+  const isProPlan = subscription.tier === 'mid';
+  const isStudioPlan = subscription.tier === 'top';
+  
+  // For Professional plan, limit to 5 custom templates (plus default templates)
+  const customTemplates = templates.filter(t => !t.isDefault);
+  const canCreateMoreTemplates = !isProPlan || customTemplates.length < 5 || isStudioPlan;
 
   const handleDeleteTemplate = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
@@ -855,7 +869,54 @@ export default function ContractTemplatesScreen() {
     );
   };
 
+  const handleUpgrade = async (tier: SubscriptionTier) => {
+    setShowUpgradePrompt(false);
+    try {
+      await upgradeTier(tier);
+    } catch (error) {
+      Alert.alert('Error', 'Upgrade failed. Please try again.');
+    }
+  };
+
+  const handleNewTemplate = () => {
+    if (!canUseContracts) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
+    if (!canCreateMoreTemplates) {
+      Alert.alert(
+        'Template Limit Reached',
+        'Professional plan allows up to 5 custom templates. Upgrade to Studio for unlimited templates.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => setShowUpgradePrompt(true) }
+        ]
+      );
+      return;
+    }
+    
+    router.push('/new-template');
+  };
+
   const handleDuplicateTemplate = (templateId: string) => {
+    if (!canUseContracts) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
+    if (!canCreateMoreTemplates) {
+      Alert.alert(
+        'Template Limit Reached',
+        'Professional plan allows up to 5 custom templates. Upgrade to Studio for unlimited templates.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => setShowUpgradePrompt(true) }
+        ]
+      );
+      return;
+    }
+    
     const template = templates.find(t => t.id === templateId);
     if (!template) return;
 
@@ -944,31 +1005,72 @@ export default function ContractTemplatesScreen() {
         rightElement={
           <Button
             title="New"
-            onPress={() => router.push('/new-template')}
-            variant="primary"
+            onPress={handleNewTemplate}
+            variant={canUseContracts && canCreateMoreTemplates ? "primary" : "outline"}
             size="small"
-            leftIcon={<Plus size={16} color={colors.text.inverse} />}
+            leftIcon={canUseContracts && canCreateMoreTemplates ? <Plus size={16} color={colors.text.inverse} /> : <Lock size={16} color={colors.text.secondary} />}
           />
         }
       />
 
-      {templates.length > 0 ? (
-        <FlatList
-          data={templates}
-          keyExtractor={(item) => item.id}
-          renderItem={renderTemplateCard}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+      {!canUseContracts ? (
+        <View style={styles.restrictedContainer}>
+          <View style={styles.restrictedContent}>
+            <Lock size={64} color={colors.text.tertiary} />
+            <Text style={styles.restrictedTitle}>Contract Templates Unavailable</Text>
+            <Text style={styles.restrictedDescription}>
+              Contract templates are available on Professional and Studio plans. Create reusable templates to streamline your workflow.
+            </Text>
+            <Button
+              title="Upgrade to Professional"
+              onPress={() => setShowUpgradePrompt(true)}
+              variant="primary"
+              style={styles.upgradeButton}
+            />
+            <Text style={styles.planInfo}>
+              Current plan: {currentPlan.name}
+            </Text>
+          </View>
+        </View>
       ) : (
-        <EmptyState
-          title="No templates yet"
-          description="Create your first contract template to streamline your workflow."
-          actionLabel="Create Template"
-          onAction={() => router.push('/new-template')}
-          icon={<FileText size={32} color={colors.primary} />}
-        />
+        <>
+          {/* Template limit warning for Professional plan */}
+          {isProPlan && (
+            <View style={styles.limitWarning}>
+              <Text style={styles.limitWarningText}>
+                Professional plan: {customTemplates.length}/5 custom templates used
+                {customTemplates.length >= 5 && ' • Upgrade to Studio for unlimited templates'}
+              </Text>
+            </View>
+          )}
+          
+          {templates.length > 0 ? (
+            <FlatList
+              data={templates}
+              keyExtractor={(item) => item.id}
+              renderItem={renderTemplateCard}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <EmptyState
+              title="No templates yet"
+              description="Create your first contract template to streamline your workflow."
+              actionLabel="Create Template"
+              onAction={handleNewTemplate}
+              icon={<FileText size={32} color={colors.primary} />}
+            />
+          )}
+        </>
       )}
+      <UpgradePrompt
+        visible={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        onUpgrade={handleUpgrade}
+        title={!canUseContracts ? "Unlock Contract Templates" : "Upgrade for Unlimited Templates"}
+        description={!canUseContracts ? "Create reusable contract templates to streamline your workflow and maintain consistency." : "Professional plan limits you to 5 custom templates. Upgrade to Studio for unlimited templates."}
+        suggestedTier={!canUseContracts ? "mid" : "top"}
+      />
     </SafeAreaView>
   );
 }
@@ -1066,5 +1168,54 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.primary,
+  },
+  restrictedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  restrictedContent: {
+    alignItems: 'center',
+    maxWidth: 300,
+  },
+  restrictedTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginTop: 24,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  restrictedDescription: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  upgradeButton: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  planInfo: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    textAlign: 'center',
+  },
+  limitWarning: {
+    backgroundColor: colors.warning + '10',
+    borderWidth: 1,
+    borderColor: colors.warning + '30',
+    borderRadius: 12,
+    padding: 16,
+    margin: 16,
+    marginBottom: 0,
+  },
+  limitWarningText: {
+    fontSize: 14,
+    color: colors.warning,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

@@ -21,6 +21,7 @@ import Button from '@/components/Button';
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 import { useAuthStore } from '@/store/authStore';
+import { useCurrencyStore } from '@/store/currencyStore';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -51,6 +52,7 @@ export default function PaymentsScreen() {
   const router = useRouter();
   const { clientId, type, projectId } = useLocalSearchParams();
   const { user } = useAuthStore();
+  const { formatAmount } = useCurrencyStore();
   const [activeTab, setActiveTab] = useState<'invoices' | 'methods'>('invoices');
   const [payoutFrequency, setPayoutFrequency] = useState<'weekly' | 'biweekly' | 'monthly'>('weekly');
   const scrollViewRef = useRef<ScrollView>(null);
@@ -371,7 +373,7 @@ export default function PaymentsScreen() {
           <Card style={styles.summaryCard}>
             <View style={styles.summaryHeader}>
               <Coins size={24} color={colors.success} />
-              <Text style={styles.summaryAmount}>£3,500</Text>
+              <Text style={styles.summaryAmount}>{formatAmount(3500)}</Text>
             </View>
             <Text style={styles.summaryLabel}>Total Paid</Text>
           </Card>
@@ -379,7 +381,7 @@ export default function PaymentsScreen() {
           <Card style={styles.summaryCard}>
             <View style={styles.summaryHeader}>
               <Clock size={24} color={colors.warning} />
-              <Text style={styles.summaryAmount}>£800</Text>
+              <Text style={styles.summaryAmount}>{formatAmount(800)}</Text>
             </View>
             <Text style={styles.summaryLabel}>Pending</Text>
           </Card>
@@ -413,7 +415,7 @@ export default function PaymentsScreen() {
               <Text style={styles.projectTitle}>{payment.projectTitle}</Text>
             </View>
             <View style={styles.paymentAmount}>
-              <Text style={styles.amount}>£{payment.amount}</Text>
+              <Text style={styles.amount}>{formatAmount(payment.amount)}</Text>
               <View style={[styles.statusBadge, { backgroundColor: getStatusColor(payment.status) + '20' }]}>
                 {getStatusIcon(payment.status)}
                 <Text style={[styles.statusText, { color: getStatusColor(payment.status) }]}>
