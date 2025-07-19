@@ -483,17 +483,7 @@ export default function ProjectDetailScreen() {
       </Card>
 
       {/* Client Info Card */}
-      <TouchableOpacity 
-        style={styles.clientInfoCard}
-        onPress={() => {
-          if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }
-          // Show client info in a custom modal
-          setShowClientInfoModal(true);
-        }}
-        activeOpacity={0.7}
-      >
+      <View style={styles.clientInfoCard}>
         <View style={styles.clientAvatarContainer}>
           <Avatar name={project.clientName} size={48} />
         </View>
@@ -504,10 +494,7 @@ export default function ProjectDetailScreen() {
             <Text style={styles.clientInfoPhone}>{project.clientPhone}</Text>
           )}
         </View>
-        <View style={styles.clientInfoArrow}>
-          <ChevronRight size={20} color={colors.text.tertiary} />
-        </View>
-      </TouchableOpacity>
+      </View>
 
       {/* Invoice Card - Show for creatives */}
       {!isClient && (
@@ -1075,7 +1062,7 @@ export default function ProjectDetailScreen() {
               value={messageText}
               onChangeText={setMessageText}
               placeholder="Enter message"
-              placeholderTextColor={colors.text.tertiary + '60'}
+              placeholderTextColor={colors.text.tertiary + '80'}
               multiline
               maxLength={500}
               onFocus={() => {
@@ -1912,7 +1899,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   fileUploadModalContent: {
     backgroundColor: colors.surface,
@@ -2001,6 +1987,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
   },
   clientInfoValue: {
     fontSize: 16,

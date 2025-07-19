@@ -101,7 +101,7 @@ export default function HomeScreen() {
     },
     content: {
       padding: 24,
-      paddingBottom: 40,
+      paddingBottom: 120,
       flexGrow: 1,
     },
     emptyContent: {
@@ -827,7 +827,7 @@ export default function HomeScreen() {
         {/* Active Projects Preview */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Active Projects</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Active Projects</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/projects')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
