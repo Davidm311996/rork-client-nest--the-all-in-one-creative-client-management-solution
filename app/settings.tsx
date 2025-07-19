@@ -117,8 +117,6 @@ export default function SettingsScreen() {
       alignItems: 'center',
       paddingVertical: 16,
       paddingHorizontal: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
     },
     settingIconContainer: {
       width: 40,
@@ -173,7 +171,19 @@ export default function SettingsScreen() {
               "Language",
               "English (US)",
               undefined,
-              () => Alert.alert('Language', 'Language settings coming soon')
+              () => {
+                Alert.alert(
+                  'Select Language',
+                  'Choose your preferred language',
+                  [
+                    { text: 'English (US)', onPress: () => console.log('English selected') },
+                    { text: 'Spanish', onPress: () => console.log('Spanish selected') },
+                    { text: 'French', onPress: () => console.log('French selected') },
+                    { text: 'German', onPress: () => console.log('German selected') },
+                    { text: 'Cancel', style: 'cancel' }
+                  ]
+                );
+              }
             )}
             {renderSettingItem(
               <Coins size={22} color={colors.primary} />,
