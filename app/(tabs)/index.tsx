@@ -16,7 +16,9 @@ import {
   Calendar,
   TrendingUp,
   FileText,
-  CreditCard
+  CreditCard,
+  Crown,
+  Plus
 } from 'lucide-react-native';
 import { useProjectStore } from '@/store/projectStore';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
@@ -182,7 +184,7 @@ export default function HomeScreen() {
       fontWeight: '600',
       flex: 1,
     },
-    upgradeButton: {
+    upgradeButtonOld: {
       backgroundColor: colors.warning,
       paddingHorizontal: 16,
       paddingVertical: 8,
@@ -395,6 +397,80 @@ export default function HomeScreen() {
       fontSize: 13,
       color: colors.success,
       fontWeight: '600',
+    },
+    upgradeBanner: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 20,
+      marginBottom: 24,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    upgradeContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    upgradeIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.primary + '20',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+    },
+    upgradeTextContainer: {
+      flex: 1,
+    },
+    upgradeTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 4,
+    },
+    upgradeDescription: {
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    upgradeButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    createProjectCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 24,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    createProjectText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    emptyActivityContainer: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyActivityTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    emptyActivityDescription: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      textAlign: 'center',
     },
   });
 
@@ -722,122 +798,70 @@ export default function HomeScreen() {
         {/* Welcome Banner */}
         <View style={styles.welcomeBanner}>
           <Text style={styles.welcomeText}>
-            Welcome back, {user?.name?.split(' ')[0] || (user?.role === 'creative' ? 'Creative' : 'Client')}!
+            Dashboard
           </Text>
           <Text style={styles.welcomeSubtext}>
-            {user?.role === 'creative' 
-              ? "Here's what's happening with your business"
-              : "Here's your project updates"
-            }
+            Welcome back, {user?.name?.split(' ')[0] || 'User'}!
           </Text>
         </View>
         
-        {/* Project Slots Warning for Free Plan */}
+        {/* Upgrade Banner */}
         {!isProPlan && (
-          <View style={styles.projectSlotsWarning}>
-            <View style={styles.warningContent}>
-              <Info size={20} color={colors.warning} />
-              <Text style={styles.warningText}>
-                {(typeof currentPlan.features.maxProjects === 'number' && subscription.projectsUsed >= currentPlan.features.maxProjects)
-                  ? 'Project limit reached on Free plan'
-                  : (typeof currentPlan.features.maxProjects === 'number' 
-                      ? `${Number(currentPlan.features.maxProjects) - subscription.projectsUsed} project slot${Number(currentPlan.features.maxProjects) - subscription.projectsUsed === 1 ? '' : 's'} remaining on Free plan`
-                      : 'Unlimited projects available'
-                    )
-                }
-              </Text>
+          <TouchableOpacity 
+            style={styles.upgradeBanner}
+            onPress={() => router.push('/subscription')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.upgradeContent}>
+              <View style={styles.upgradeIcon}>
+                <Crown size={24} color={colors.primary} />
+              </View>
+              <View style={styles.upgradeTextContainer}>
+                <Text style={styles.upgradeTitle}>Upgrade Your Plan</Text>
+                <Text style={styles.upgradeDescription}>Unlock unlimited projects, adva...</Text>
+              </View>
             </View>
-            {(typeof currentPlan.features.maxProjects === 'number' && subscription.projectsUsed >= Number(currentPlan.features.maxProjects)) && (
-              <TouchableOpacity 
-                style={styles.upgradeButton}
-                onPress={() => router.push('/subscription')}
-              >
-                <Text style={styles.upgradeButtonText}>Upgrade</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+            <View style={styles.upgradeButton}>
+              <TrendingUp size={16} color={colors.text.inverse} />
+              <Text style={styles.upgradeButtonText}>Upgrade</Text>
+            </View>
+          </TouchableOpacity>
         )}
         
-        {/* Metrics Cards */}
-        <View style={styles.metricsContainer}>
-          
-          {user?.role === 'creative' && (
-            <>
-              <TouchableOpacity 
-                style={styles.metricCard}
-                onPress={() => router.push('/payments')}
-                activeOpacity={0.7}
-              >
-                <View style={styles.metricIconContainer}>
-                  <Coins size={24} color={colors.warning} />
-                </View>
-                <Text style={styles.metricValue}>{pendingPayments}</Text>
-                <Text style={styles.metricLabel}>Pending Payments</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.metricCard}
-                onPress={() => router.push('/(tabs)/chat')}
-                activeOpacity={0.7}
-              >
-                <View style={styles.metricIconContainer}>
-                  <MessageCircle size={24} color={colors.accent} />
-                </View>
-                <Text style={styles.metricValue}>{unreadMessages}</Text>
-                <Text style={styles.metricLabel}>Unread Messages</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          
-          {user?.role === 'client' && (
-            <>
-              <TouchableOpacity 
-                style={styles.metricCard}
-                onPress={() => router.push('/files')}
-                activeOpacity={0.7}
-              >
-                <View style={styles.metricIconContainer}>
-                  <Upload size={24} color={colors.success} />
-                </View>
-                <Text style={styles.metricValue}>3</Text>
-                <Text style={styles.metricLabel}>Files Ready</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.metricCard}
-                onPress={() => router.push('/contracts')}
-                activeOpacity={0.7}
-              >
-                <View style={styles.metricIconContainer}>
-                  <StickyNote size={24} color={colors.warning} />
-                </View>
-                <Text style={styles.metricValue}>1</Text>
-                <Text style={styles.metricLabel}>Pending Actions</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+
+        
+
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            {quickActions.map((action, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.actionButton, { backgroundColor: action.backgroundColor }]}
-                onPress={() => {
-                  if (Platform.OS !== 'web') {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  }
-                  action.onPress();
-                }}
-                activeOpacity={0.8}
-              >
-                {action.icon}
-                <Text style={styles.actionButtonText}>{action.title}</Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.invite }]}
+              onPress={() => router.push('/invite-client')}
+              activeOpacity={0.8}
+            >
+              <UserPlus size={20} color={colors.text.inverse} />
+              <Text style={styles.actionButtonText}>Invite Client</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.clients }]}
+              onPress={() => router.push('/new-project')}
+              activeOpacity={0.8}
+            >
+              <Plus size={20} color={colors.text.inverse} />
+              <Text style={styles.actionButtonText}>New Project</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.contracts }]}
+              onPress={() => router.push('/new-invoice')}
+              activeOpacity={0.8}
+            >
+              <FileText size={20} color={colors.text.inverse} />
+              <Text style={styles.actionButtonText}>Invoices</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -846,46 +870,57 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Active Projects</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/projects')}>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={styles.seeAllText}>View All</Text>
             </TouchableOpacity>
           </View>
           
           <View style={styles.sectionContent}>
-            {activeProjects.slice(0, 2).map((project) => (
+            {activeProjects.length > 0 ? (
+              activeProjects.slice(0, 2).map((project) => (
+                <TouchableOpacity
+                  key={project.id}
+                  style={styles.projectCard}
+                  onPress={() => {
+                    if (Platform.OS !== 'web') {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }
+                    router.push(`/project/${project.id}`);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.projectClientName}>{project.clientName}</Text>
+                  <Text style={styles.projectDescription}>{project.title}</Text>
+                  
+                  <View style={styles.projectFooter}>
+                    <View style={[styles.statusBadge, getStatusBadgeStyle(project.status)]}>
+                      <Text style={[styles.statusText, getStatusTextStyle(project.status)]}>{project.status}</Text>
+                    </View>
+                    <Text style={styles.projectDate}>
+                      Due {new Date(project.dueDate).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
               <TouchableOpacity
-                key={project.id}
-                style={styles.projectCard}
-                onPress={() => {
-                  if (Platform.OS !== 'web') {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }
-                  router.push(`/project/${project.id}`);
-                }}
+                style={styles.createProjectCard}
+                onPress={() => router.push('/new-project')}
                 activeOpacity={0.8}
               >
-                <Text style={styles.projectClientName}>{project.clientName}</Text>
-                <Text style={styles.projectDescription}>{project.title}</Text>
-                
-                <View style={styles.projectFooter}>
-                  <View style={[styles.statusBadge, getStatusBadgeStyle(project.status)]}>
-                    <Text style={[styles.statusText, getStatusTextStyle(project.status)]}>{project.status}</Text>
-                  </View>
-                  <Text style={styles.projectDate}>
-                    Due {new Date(project.dueDate).toLocaleDateString()}
-                  </Text>
-                </View>
+                <Text style={styles.createProjectText}>Create New Project</Text>
+                <Plus size={24} color={colors.primary} />
               </TouchableOpacity>
-            ))}
+            )}
           </View>
         </View>
 
-        {/* Recent Activity - Only show if there are activities */}
-        {recentActivity.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-            
-            <View style={styles.sectionContent}>
-              {recentActivity.map((activity) => (
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          
+          <View style={styles.sectionContent}>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
                 <TouchableOpacity 
                   key={activity.id} 
                   style={styles.activityItem}
@@ -900,27 +935,18 @@ export default function HomeScreen() {
                     <Text style={styles.activityTime}>{activity.time}</Text>
                   </View>
                 </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Monthly Earnings Graph Placeholder - Creative only */}
-        {user?.role === 'creative' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>This Month</Text>
-            <View style={styles.sectionContent}>
-              <View style={styles.earningsCard}>
-                <View style={styles.earningsHeader}>
-                  <TrendingUp size={24} color={colors.success} />
-                  <Text style={styles.earningsAmount}>{formatAmount(2450)}</Text>
-                </View>
-                <Text style={styles.earningsLabel}>Total Earnings</Text>
-                <Text style={styles.earningsGrowth}>+12% from last month</Text>
+              ))
+            ) : (
+              <View style={styles.emptyActivityContainer}>
+                <TrendingUp size={48} color={colors.primary} />
+                <Text style={styles.emptyActivityTitle}>No recent activity</Text>
+                <Text style={styles.emptyActivityDescription}>Activity will appear here as you use the app</Text>
               </View>
-            </View>
+            )}
           </View>
-        )}
+        </View>
+
+
       </ScrollView>
     </SafeAreaView>
   );

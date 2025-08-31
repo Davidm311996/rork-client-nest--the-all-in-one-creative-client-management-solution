@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, FolderPlus } from 'lucide-react-native';
+import { Plus, FolderPlus, Search, FolderOpen } from 'lucide-react-native';
 import { useProjectStore } from '@/store/projectStore';
 import ProjectCard from '@/components/ProjectCard';
 import EmptyState from '@/components/EmptyState';
 import Button from '@/components/Button';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
 import { Project } from '@/types/project';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
 import UpgradePrompt from '@/components/UpgradePrompt';
@@ -16,9 +15,11 @@ import { SubscriptionTier } from '@/types/subscription';
 
 export default function ProjectsScreen() {
   const router = useRouter();
+  const { colors } = useThemeStore();
   const { projects, isLoading, fetchProjects } = useProjectStore();
   const { canCreateProject, getCurrentPlan } = useSubscriptionStore();
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   useEffect(() => {
@@ -26,8 +27,11 @@ export default function ProjectsScreen() {
   }, []);
 
   const filteredProjects = projects.filter(project => {
-    if (activeFilter === 'all') return true;
-    return project.status.toLowerCase() === activeFilter.toLowerCase();
+    const matchesFilter = activeFilter === 'All' || project.status === activeFilter;
+    const matchesSearch = searchQuery === '' || 
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.clientName.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
 
   const renderFilterButton = (label: string, filter: string) => (
@@ -70,23 +74,144 @@ export default function ProjectsScreen() {
 
   const currentPlan = getCurrentPlan();
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+    },
+    headerTitle: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: colors.text.primary,
+      letterSpacing: -0.8,
+    },
+    headerSubtitle: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      marginTop: 4,
+    },
+    newProjectButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    searchContainer: {
+      paddingHorizontal: 24,
+      paddingBottom: 16,
+    },
+    searchInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 12,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    filterContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: 24,
+      marginBottom: 16,
+      gap: 8,
+    },
+    filterButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+    },
+    activeFilterButton: {
+      backgroundColor: colors.primary,
+    },
+    filterButtonText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.text.secondary,
+    },
+    activeFilterButtonText: {
+      color: colors.text.inverse,
+    },
+    listContent: {
+      padding: 24,
+      paddingBottom: 120,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 60,
+    },
+    emptyIcon: {
+      marginBottom: 24,
+    },
+    emptyTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    emptyDescription: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+      paddingHorizontal: 32,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={typography.h1}>Projects</Text>
+        <View>
+          <Text style={styles.headerTitle}>Projects</Text>
+          <Text style={styles.headerSubtitle}>Manage your projects</Text>
+        </View>
         <TouchableOpacity 
           style={styles.newProjectButton}
           onPress={handleNewProject}
         >
-          <Plus size={24} color={colors.primary} />
+          <Plus size={24} color={colors.text.inverse} />
         </TouchableOpacity>
       </View>
 
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Search size={20} color={colors.text.tertiary} />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search projects..."
+            placeholderTextColor={colors.text.tertiary}
+          />
+        </View>
+      </View>
+
       <View style={styles.filterContainer}>
-        {renderFilterButton('All', 'all')}
-        {renderFilterButton('In Progress', 'in progress')}
-        {renderFilterButton('Review', 'review')}
-        {renderFilterButton('Completed', 'completed')}
+        {renderFilterButton('All', 'All')}
+        {renderFilterButton('In Progress', 'In Progress')}
+        {renderFilterButton('Completed', 'Completed')}
       </View>
 
       {isLoading ? (
@@ -102,17 +227,20 @@ export default function ProjectsScreen() {
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <EmptyState
-          title="No projects yet"
-          description={
-            activeFilter === 'all'
-              ? "You haven't created any projects yet. Get started by creating your first project."
-              : `You don't have any ${activeFilter} projects.`
-          }
-          actionLabel={activeFilter === 'all' ? "Create Project" : "View All Projects"}
-          onAction={() => activeFilter === 'all' ? router.push('/new-project') : setActiveFilter('all')}
-          icon={<FolderPlus size={32} color={colors.primary} />}
-        />
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIcon}>
+            <FolderOpen size={64} color={colors.primary} />
+          </View>
+          <Text style={styles.emptyTitle}>No projects yet</Text>
+          <Text style={styles.emptyDescription}>
+            {activeFilter === 'All' && searchQuery === ''
+              ? "Create your first project to get started"
+              : searchQuery !== ''
+              ? "No projects match your search"
+              : `No ${activeFilter.toLowerCase()} projects found`
+            }
+          </Text>
+        </View>
       )}
 
       <UpgradePrompt
@@ -127,51 +255,3 @@ export default function ProjectsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginRight: 8,
-    backgroundColor: colors.surface,
-  },
-  activeFilterButton: {
-    backgroundColor: colors.primary,
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text.secondary,
-  },
-  activeFilterButtonText: {
-    color: colors.text.inverse,
-  },
-  listContent: {
-    padding: 16,
-    paddingBottom: 100, // Extra padding for floating tab bar
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  newProjectButton: {
-    padding: 8,
-  },
-});

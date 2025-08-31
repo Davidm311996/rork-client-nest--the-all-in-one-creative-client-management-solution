@@ -50,9 +50,8 @@ export default function TabLayout() {
           );
         },
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
+          backgroundColor: colors.background,
+          borderTopWidth: 0,
           height: Platform.OS === 'ios' ? (screenHeight > 800 ? 90 : 84) : 70,
           paddingBottom: Platform.OS === 'ios' ? (screenHeight > 800 ? 34 : 20) : 10,
           paddingTop: 8,
@@ -72,7 +71,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
             <Home size={size} color={color} />
           ),

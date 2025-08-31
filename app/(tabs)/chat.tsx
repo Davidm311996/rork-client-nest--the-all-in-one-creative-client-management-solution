@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MessageCircle, Search, Plus, X } from 'lucide-react-native';
+import { MessageCircle, Search, Plus, X, Archive } from 'lucide-react-native';
 import Avatar from '@/components/Avatar';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import KeyboardAwareView from '@/components/KeyboardAwareView';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
 import { useClientStore } from '@/store/clientStore';
 import { useProjectStore } from '@/store/projectStore';
 
 export default function ChatScreen() {
   const router = useRouter();
+  const { colors } = useThemeStore();
   const { clients } = useClientStore();
   const { projects, fetchProjects } = useProjectStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,17 +147,230 @@ export default function ChatScreen() {
     );
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: colors.text.primary,
+      letterSpacing: -0.8,
+    },
+    headerSubtitle: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      marginTop: 4,
+    },
+    headerButtons: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    headerButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    newChatButton: {
+      backgroundColor: colors.primary,
+    },
+    searchContainer: {
+      paddingHorizontal: 24,
+      paddingBottom: 16,
+    },
+    searchInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 12,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    content: {
+      padding: 24,
+      paddingBottom: 120,
+    },
+    conversationItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      marginBottom: 12,
+    },
+    conversationContent: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    conversationHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 2,
+    },
+    clientName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text.primary,
+      flex: 1,
+    },
+    timestamp: {
+      fontSize: 12,
+      color: colors.text.tertiary,
+    },
+    projectTitle: {
+      fontSize: 12,
+      color: colors.text.tertiary,
+      marginBottom: 4,
+    },
+    lastMessage: {
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    unreadMessage: {
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    unreadContainer: {
+      alignItems: 'center',
+      marginLeft: 8,
+    },
+    unreadDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+    },
+    unreadCount: {
+      fontSize: 10,
+      color: colors.primary,
+      fontWeight: '600',
+      marginTop: 2,
+    },
+    emptyState: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 60,
+    },
+    emptyTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginTop: 16,
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    emptyDescription: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      marginBottom: 24,
+      lineHeight: 24,
+      paddingHorizontal: 32,
+    },
+    emptyStateButton: {
+      minWidth: 200,
+    },
+    modalOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    },
+    modalContent: {
+      width: '90%',
+      maxHeight: '70%',
+      padding: 20,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: colors.text.primary,
+    },
+    clientsList: {
+      maxHeight: 300,
+    },
+    clientItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    clientInfo: {
+      marginLeft: 12,
+      flex: 1,
+    },
+    clientEmail: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    noClientsContainer: {
+      padding: 20,
+      alignItems: 'center',
+    },
+    noClientsText: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+  });
+
   return (
     <KeyboardAwareView style={styles.container} isChatScreen={false}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        <Text style={typography.h1}>Chat</Text>
-        <TouchableOpacity 
-          style={styles.newChatButton}
-          onPress={() => setShowNewChatModal(true)}
-        >
-          <Plus size={24} color={colors.primary} />
-        </TouchableOpacity>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>Chat</Text>
+          <Text style={styles.headerSubtitle}>{conversations.length} conversations</Text>
+        </View>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity style={styles.headerButton}>
+            <Archive size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.headerButton, styles.newChatButton]}
+            onPress={() => setShowNewChatModal(true)}
+          >
+            <Plus size={24} color={colors.text.inverse} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -230,18 +443,18 @@ export default function ChatScreen() {
           ))
         ) : searchQuery.length > 0 ? (
           <View style={styles.emptyState}>
-            <Search size={48} color={colors.primary} />
-            <Text style={[typography.h3, styles.emptyTitle]}>No results found</Text>
-            <Text style={[typography.body, styles.emptyDescription]}>
+            <Search size={64} color={colors.primary} />
+            <Text style={styles.emptyTitle}>No results found</Text>
+            <Text style={styles.emptyDescription}>
               Try searching with different keywords
             </Text>
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <MessageCircle size={48} color={colors.primary} />
-            <Text style={[typography.h3, styles.emptyTitle]}>No conversations yet</Text>
-            <Text style={[typography.body, styles.emptyDescription]}>
-              Start a project to begin chatting with your clients
+            <MessageCircle size={64} color={colors.primary} />
+            <Text style={styles.emptyTitle}>No conversations</Text>
+            <Text style={styles.emptyDescription}>
+              Start a new conversation to begin messaging
             </Text>
             <Button
               title="Start New Chat"
@@ -259,176 +472,3 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  newChatButton: {
-    padding: 8,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text.primary,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 120,
-  },
-  conversationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    marginBottom: 12,
-  },
-  conversationContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  conversationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  clientName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
-    flex: 1,
-  },
-  timestamp: {
-    fontSize: 12,
-    color: colors.text.tertiary,
-  },
-  projectTitle: {
-    fontSize: 12,
-    color: colors.text.tertiary,
-    marginBottom: 4,
-  },
-  lastMessage: {
-    fontSize: 14,
-    color: colors.text.secondary,
-  },
-  unreadMessage: {
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-  unreadContainer: {
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  unreadCount: {
-    fontSize: 10,
-    color: colors.primary,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyTitle: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyDescription: {
-    textAlign: 'center',
-    color: colors.text.secondary,
-    marginBottom: 24,
-  },
-  emptyStateButton: {
-    minWidth: 200,
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    width: '90%',
-    maxHeight: '70%',
-    padding: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  clientsList: {
-    maxHeight: 300,
-  },
-  clientItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  clientInfo: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  clientEmail: {
-    fontSize: 14,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  noClientsContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  noClientsText: {
-    fontSize: 16,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-});

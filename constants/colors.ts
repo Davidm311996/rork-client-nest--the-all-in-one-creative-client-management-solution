@@ -27,30 +27,30 @@ const lightTheme = {
 };
 
 const darkTheme = {
-  primary: '#C6BFF3', // Soft Lilac (buttons, main accents on dark)
+  primary: '#4A90E2', // Blue accent
   secondary: '#045c91', // Blue
   accent: '#4B3E8E', // Deep Indigo
-  background: '#1B1B1F', // Deep Charcoal
-  surface: '#2A2A33', // Slate Grey
-  card: '#2A2A33', // Slate Grey card background
+  background: '#2C3E50', // Dark blue-grey background
+  surface: '#34495E', // Lighter blue-grey for cards
+  card: '#34495E', // Card background
   text: {
-    primary: '#F8F8FB', // Off White
-    secondary: '#F8F8FB',
-    tertiary: '#DADCE5', // Light Grey
-    inverse: '#1B1B1F',
+    primary: '#FFFFFF', // Pure white text
+    secondary: '#BDC3C7', // Light grey text
+    tertiary: '#7F8C8D', // Muted grey text
+    inverse: '#2C3E50',
   },
-  border: '#DADCE5', // Light Grey
-  success: '#059669',
-  warning: '#D97706',
-  error: '#FF6B6B', // Coral Red
-  inactive: '#DADCE5',
-  highlight: '#C6BFF3',
+  border: '#4A5568', // Subtle border
+  success: '#27AE60',
+  warning: '#F39C12',
+  error: '#E74C3C',
+  inactive: '#7F8C8D',
+  highlight: '#4A90E2',
   
-  // Action button colors - muted versions
-  invite: '#C6BFF3',
-  clients: '#6B5BA0',
-  contracts: '#3A8DFF',
-  notes: '#D0D0D8',
+  // Action button colors - vibrant colors for dark mode
+  invite: '#27AE60', // Green
+  clients: '#4A90E2', // Blue
+  contracts: '#8B7355', // Brown/Gold
+  notes: '#9B59B6', // Purple
 };
 
 export { lightTheme, darkTheme };
