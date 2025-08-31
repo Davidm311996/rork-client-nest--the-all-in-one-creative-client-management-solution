@@ -277,8 +277,8 @@ export default function HomeScreen() {
       gap: 4,
     },
     actionButton: {
-      width: (width - 56) / 3, // Fit 3 larger cards on one line
-      height: (width - 56) / 3 * 0.8, // Slightly rectangular
+      width: (width - 56) / 3, // Fit 3 cards on one line
+      height: (width - 56) / 3, // Perfect 1x1 square
       borderRadius: 24,
       alignItems: 'center',
       justifyContent: 'center',
