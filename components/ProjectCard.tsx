@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Clock, FileText, MessageCircle, CreditCard } from 'lucide-react-native';
 import Card from './Card';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
+import { createTypography } from '@/constants/typography';
 import { Project } from '@/types/project';
 
 type ProjectCardProps = {
@@ -13,6 +13,8 @@ type ProjectCardProps = {
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   const router = useRouter();
+  const { colors } = useThemeStore();
+  const typography = createTypography(colors);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -44,6 +46,38 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     }
   };
 
+  const styles = StyleSheet.create({
+    card: {
+      marginBottom: 16,
+    },
+    header: {
+      marginBottom: 16,
+    },
+    clientContainer: {
+      marginTop: 8,
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    statusContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    statusText: {
+      fontSize: 12,
+      fontWeight: '600',
+      marginLeft: 6,
+    },
+  });
+
   return (
     <TouchableOpacity 
       activeOpacity={0.7}
@@ -51,10 +85,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     >
       <Card style={styles.card}>
         <View style={styles.header}>
-          <Text style={typography.h4} numberOfLines={1}>{project.title}</Text>
+          <Text style={[typography.h4, { color: colors.text.primary }]} numberOfLines={1}>{project.title}</Text>
           <View style={styles.clientContainer}>
-            <Text style={typography.caption}>CLIENT</Text>
-            <Text style={typography.bodySmall}>{project.clientName}</Text>
+            <Text style={[typography.caption, { color: colors.text.tertiary }]}>CLIENT</Text>
+            <Text style={[typography.bodySmall, { color: colors.text.secondary }]}>{project.clientName}</Text>
           </View>
         </View>
         
@@ -71,7 +105,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </Text>
           </View>
           
-          <Text style={typography.caption}>
+          <Text style={[typography.caption, { color: colors.text.tertiary }]}>
             {new Date(project.dueDate).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
@@ -84,32 +118,3 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: 16,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  clientContainer: {
-    marginTop: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.highlight,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 24,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-});

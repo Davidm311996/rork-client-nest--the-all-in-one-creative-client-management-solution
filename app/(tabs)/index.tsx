@@ -274,24 +274,24 @@ export default function HomeScreen() {
     actionsGrid: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      gap: 8,
+      gap: 4,
     },
     actionButton: {
-      width: (width - 80) / 4, // Fit 4 on one line
-      height: (width - 80) / 4, // Perfect squares
-      borderRadius: 20,
+      width: (width - 56) / 3, // Fit 3 larger cards on one line
+      height: (width - 56) / 3 * 0.8, // Slightly rectangular
+      borderRadius: 24,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
-      opacity: 0.8, // Muted colors
+      opacity: 1, // Full opacity for better visibility
     },
     actionButtonText: {
       color: colors.text.inverse,
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: '600',
-      marginTop: 8,
+      marginTop: 10,
       textAlign: 'center',
-      lineHeight: 14,
+      lineHeight: 16,
     },
     projectCard: {
       backgroundColor: colors.surface,
@@ -841,7 +841,7 @@ export default function HomeScreen() {
               onPress={() => router.push('/invite-client')}
               activeOpacity={0.8}
             >
-              <UserPlus size={20} color={colors.text.inverse} />
+              <UserPlus size={24} color={colors.text.inverse} />
               <Text style={styles.actionButtonText}>Invite Client</Text>
             </TouchableOpacity>
             
@@ -850,7 +850,7 @@ export default function HomeScreen() {
               onPress={() => router.push('/new-project')}
               activeOpacity={0.8}
             >
-              <Plus size={20} color={colors.text.inverse} />
+              <Plus size={24} color={colors.text.inverse} />
               <Text style={styles.actionButtonText}>New Project</Text>
             </TouchableOpacity>
             
@@ -859,7 +859,7 @@ export default function HomeScreen() {
               onPress={() => router.push('/new-invoice')}
               activeOpacity={0.8}
             >
-              <FileText size={20} color={colors.text.inverse} />
+              <FileText size={24} color={colors.text.inverse} />
               <Text style={styles.actionButtonText}>Invoices</Text>
             </TouchableOpacity>
           </View>
