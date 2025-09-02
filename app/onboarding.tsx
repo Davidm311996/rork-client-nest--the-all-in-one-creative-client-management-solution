@@ -64,6 +64,191 @@ const roleOptions = [
   }
 ];
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: designTokens.spacing.lg,
+    paddingVertical: designTokens.spacing.md,
+  },
+  skipButton: {
+    paddingHorizontal: designTokens.spacing.md,
+    paddingVertical: designTokens.spacing.sm,
+  },
+  skipText: {
+    fontSize: 16,
+    color: designTokens.brand.muted,
+    fontWeight: '600',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  slide: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: designTokens.spacing.lg,
+  },
+  shopCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: designTokens.radii.card,
+    padding: designTokens.spacing.lg,
+    alignItems: 'center',
+    width: width - (designTokens.spacing.xl * 2),
+    maxWidth: 340,
+  },
+  badgeContainer: {
+    backgroundColor: designTokens.brand.primary,
+    paddingHorizontal: designTokens.spacing.md,
+    paddingVertical: designTokens.spacing.xs,
+    borderRadius: designTokens.radii.chip,
+    marginBottom: designTokens.spacing.lg,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  imageContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: designTokens.radii.image_mask,
+    overflow: 'hidden',
+    marginBottom: designTokens.spacing.lg,
+    backgroundColor: '#F0F0F0',
+  },
+  slideImage: {
+    width: '100%',
+    height: '100%',
+  },
+  slideTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: designTokens.brand.text,
+    textAlign: 'center',
+    marginBottom: designTokens.spacing.sm,
+    lineHeight: 28,
+  },
+  slideSubtitle: {
+    fontSize: 15,
+    color: designTokens.brand.muted,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  roleSelectContainer: {
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: designTokens.spacing.lg,
+  },
+  roleTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: designTokens.brand.text,
+    textAlign: 'center',
+    marginBottom: designTokens.spacing.sm,
+    letterSpacing: -0.5,
+  },
+  roleSubtitle: {
+    fontSize: 17,
+    color: designTokens.brand.muted,
+    textAlign: 'center',
+    marginBottom: designTokens.spacing.xl,
+    lineHeight: 24,
+  },
+  roleOptionsContainer: {
+    width: '100%',
+    gap: designTokens.spacing.md,
+  },
+  roleCard: {
+    borderRadius: designTokens.radii.card,
+    padding: designTokens.spacing.lg,
+    alignItems: 'center',
+    marginVertical: designTokens.spacing.sm,
+  },
+  selectedRoleCard: {
+    borderWidth: 3,
+    borderColor: designTokens.brand.primary,
+  },
+  roleSelectScreen: {
+    flex: 1,
+  },
+  backButton: {
+    padding: designTokens.spacing.sm,
+  },
+  confirmButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: designTokens.radii.button,
+    paddingHorizontal: designTokens.spacing.lg,
+    paddingVertical: designTokens.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: designTokens.spacing.sm,
+    marginTop: designTokens.spacing.xl,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: designTokens.brand.text,
+  },
+  roleCardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: designTokens.brand.text,
+    marginBottom: designTokens.spacing.xs,
+    textAlign: 'center',
+  },
+  roleCardCaption: {
+    fontSize: 14,
+    color: designTokens.brand.muted,
+    textAlign: 'center',
+  },
+  footer: {
+    paddingHorizontal: designTokens.spacing.lg,
+    paddingVertical: designTokens.spacing.lg,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: designTokens.spacing.lg,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: designTokens.brand.accent,
+  },
+  inactiveDot: {
+    backgroundColor: designTokens.brand.muted,
+  },
+  nextButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: designTokens.radii.button,
+    paddingHorizontal: designTokens.spacing.lg,
+    paddingVertical: designTokens.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: designTokens.spacing.sm,
+  },
+  nextButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: designTokens.brand.text,
+  },
+});
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const { markOnboardingComplete } = useOnboardingStore();
@@ -253,190 +438,7 @@ export default function OnboardingScreen() {
     return renderRoleSelect();
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    safeArea: {
-      flex: 1,
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      paddingHorizontal: designTokens.spacing.lg,
-      paddingVertical: designTokens.spacing.md,
-    },
-    skipButton: {
-      paddingHorizontal: designTokens.spacing.md,
-      paddingVertical: designTokens.spacing.sm,
-    },
-    skipText: {
-      fontSize: 16,
-      color: designTokens.brand.muted,
-      fontWeight: '600',
-    },
-    scrollView: {
-      flex: 1,
-    },
-    slide: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: designTokens.spacing.lg,
-    },
-    shopCard: {
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: designTokens.radii.card,
-      padding: designTokens.spacing.lg,
-      alignItems: 'center',
-      width: width - (designTokens.spacing.xl * 2),
-      maxWidth: 340,
-    },
-    badgeContainer: {
-      backgroundColor: designTokens.brand.primary,
-      paddingHorizontal: designTokens.spacing.md,
-      paddingVertical: designTokens.spacing.xs,
-      borderRadius: designTokens.radii.chip,
-      marginBottom: designTokens.spacing.lg,
-    },
-    badgeText: {
-      color: '#FFFFFF',
-      fontSize: 12,
-      fontWeight: '600',
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
-    },
-    imageContainer: {
-      width: 120,
-      height: 120,
-      borderRadius: designTokens.radii.image_mask,
-      overflow: 'hidden',
-      marginBottom: designTokens.spacing.lg,
-      backgroundColor: '#F0F0F0',
-    },
-    slideImage: {
-      width: '100%',
-      height: '100%',
-    },
-    slideTitle: {
-      fontSize: 22,
-      fontWeight: '600',
-      color: designTokens.brand.text,
-      textAlign: 'center',
-      marginBottom: designTokens.spacing.sm,
-      lineHeight: 28,
-    },
-    slideSubtitle: {
-      fontSize: 15,
-      color: designTokens.brand.muted,
-      textAlign: 'center',
-      lineHeight: 22,
-    },
-    roleSelectContainer: {
-      alignItems: 'center',
-      width: '100%',
-      paddingHorizontal: designTokens.spacing.lg,
-    },
-    roleTitle: {
-      fontSize: 28,
-      fontWeight: '700',
-      color: designTokens.brand.text,
-      textAlign: 'center',
-      marginBottom: designTokens.spacing.sm,
-      letterSpacing: -0.5,
-    },
-    roleSubtitle: {
-      fontSize: 17,
-      color: designTokens.brand.muted,
-      textAlign: 'center',
-      marginBottom: designTokens.spacing.xl,
-      lineHeight: 24,
-    },
-    roleOptionsContainer: {
-      width: '100%',
-      gap: designTokens.spacing.md,
-    },
-    roleCard: {
-      borderRadius: designTokens.radii.card,
-      padding: designTokens.spacing.lg,
-      alignItems: 'center',
-      marginVertical: designTokens.spacing.sm,
-    },
-    selectedRoleCard: {
-      borderWidth: 3,
-      borderColor: designTokens.brand.primary,
-    },
-    roleSelectScreen: {
-      flex: 1,
-    },
-    backButton: {
-      padding: designTokens.spacing.sm,
-    },
-    confirmButton: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: designTokens.radii.button,
-      paddingHorizontal: designTokens.spacing.lg,
-      paddingVertical: designTokens.spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: designTokens.spacing.sm,
-      marginTop: designTokens.spacing.xl,
-    },
-    confirmButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: designTokens.brand.text,
-    },
-    roleCardTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: designTokens.brand.text,
-      marginBottom: designTokens.spacing.xs,
-      textAlign: 'center',
-    },
-    roleCardCaption: {
-      fontSize: 14,
-      color: designTokens.brand.muted,
-      textAlign: 'center',
-    },
-    footer: {
-      paddingHorizontal: designTokens.spacing.lg,
-      paddingVertical: designTokens.spacing.lg,
-    },
-    dotsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      marginBottom: designTokens.spacing.lg,
-    },
-    dot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      marginHorizontal: 4,
-    },
-    activeDot: {
-      backgroundColor: designTokens.brand.accent,
-    },
-    inactiveDot: {
-      backgroundColor: designTokens.brand.muted,
-    },
-    nextButton: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: designTokens.radii.button,
-      paddingHorizontal: designTokens.spacing.lg,
-      paddingVertical: designTokens.spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: designTokens.spacing.sm,
-    },
-    nextButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: designTokens.brand.text,
-    },
-  });
+
 
   return (
     <View style={[styles.container, { backgroundColor: currentSlideData?.bgColor || designTokens.pastels.peach }]}>
