@@ -34,9 +34,10 @@ export const useThemeStore = create<ThemeState>()(
       colors: getEffectiveColors('system'),
 
       setTheme: (theme: Theme) => {
+        const newColors = getEffectiveColors(theme);
         set({
           theme,
-          colors: getEffectiveColors(theme),
+          colors: newColors,
         });
       },
 
@@ -57,7 +58,7 @@ export const useThemeStore = create<ThemeState>()(
     {
       name: 'theme-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
         if (state) {
           // Update colors based on current system theme when app loads
           state.colors = getEffectiveColors(state.theme);
@@ -65,7 +66,7 @@ export const useThemeStore = create<ThemeState>()(
           // Listen for system theme changes
           const subscription = Appearance.addChangeListener(({ colorScheme }) => {
             if (state.theme === 'system') {
-              state.setTheme('system'); // This will update colors
+              state.setTheme('system'); // Use the state's setTheme method
             }
           });
           

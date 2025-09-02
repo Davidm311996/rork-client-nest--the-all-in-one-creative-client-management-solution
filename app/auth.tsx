@@ -4,10 +4,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from 'lucide-react-native';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import Button from '@/components/Button';
 import KeyboardAwareView from '@/components/KeyboardAwareView';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { createTypography } from '@/constants/typography';
 
 type AuthMode = 'login' | 'signup' | 'verify' | 'forgot';
 
@@ -15,6 +15,8 @@ export default function AuthScreen() {
   const router = useRouter();
   const { inviteToken } = useLocalSearchParams();
   const { login, register, verifyEmail, sendPasswordReset, isLoading, pendingVerification } = useAuthStore();
+  const { colors } = useThemeStore();
+  const typography = createTypography(colors);
   
   const [mode, setMode] = useState<AuthMode>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -120,6 +122,128 @@ export default function AuthScreen() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    safeArea: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 24,
+      justifyContent: 'center',
+      minHeight: '100%',
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: 40,
+    },
+    verifyIconContainer: {
+      marginBottom: 16,
+    },
+    title: {
+      marginBottom: 8,
+    },
+    subtitle: {
+      textAlign: 'center',
+      color: colors.text.secondary,
+    },
+    form: {
+      marginBottom: 32,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      backgroundColor: colors.surface,
+    },
+    inputIcon: {
+      marginRight: 12,
+    },
+    input: {
+      flex: 1,
+      paddingVertical: 16,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    eyeIcon: {
+      padding: 4,
+    },
+    codeInputContainer: {
+      marginBottom: 24,
+    },
+    codeInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      paddingVertical: 20,
+      fontSize: 24,
+      color: colors.text.primary,
+      backgroundColor: colors.surface,
+      letterSpacing: 8,
+    },
+    submitButton: {
+      marginTop: 8,
+    },
+    forgotPassword: {
+      alignItems: 'center',
+      marginTop: 16,
+    },
+    forgotPasswordText: {
+      color: colors.primary,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    resendButton: {
+      alignItems: 'center',
+      marginTop: 16,
+    },
+    resendText: {
+      color: colors.primary,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    switchText: {
+      color: colors.text.secondary,
+      fontSize: 14,
+    },
+    switchButton: {
+      color: colors.primary,
+      fontSize: 14,
+      fontWeight: '600',
+      marginLeft: 4,
+    },
+    socialButton: {
+      marginBottom: 12,
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 20,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      marginHorizontal: 16,
+      color: colors.text.tertiary,
+      fontSize: 14,
+    },
+  });
+
   const renderVerificationScreen = () => (
     <View style={styles.content}>
       <View style={styles.header}>
@@ -155,7 +279,7 @@ export default function AuthScreen() {
         />
 
         <TouchableOpacity style={styles.resendButton}>
-          <Text style={styles.resendText}>Didn't receive the code? Resend</Text>
+          <Text style={styles.resendText}>Didn&apos;t receive the code? Resend</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -166,7 +290,7 @@ export default function AuthScreen() {
       <View style={styles.header}>
         <Text style={[typography.h1, styles.title]}>Reset Password</Text>
         <Text style={[typography.body, styles.subtitle]}>
-          Enter your email and we'll send you a reset link
+          Enter your email and we&apos;ll send you a reset link
         </Text>
       </View>
 
@@ -374,7 +498,7 @@ export default function AuthScreen() {
         {!isInviteSignup && (
           <View style={styles.footer}>
             <Text style={styles.switchText}>
-              {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
+              {mode === 'login' ? "Don&apos;t have an account?" : "Already have an account?"}
             </Text>
             <TouchableOpacity onPress={() => setMode(mode === 'login' ? 'signup' : 'login')}>
               <Text style={styles.switchButton}>
@@ -389,124 +513,3 @@ export default function AuthScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    minHeight: '100%',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  verifyIconContainer: {
-    marginBottom: 16,
-  },
-  title: {
-    marginBottom: 8,
-  },
-  subtitle: {
-    textAlign: 'center',
-    color: colors.text.secondary,
-  },
-  form: {
-    marginBottom: 32,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: colors.text.primary,
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  codeInputContainer: {
-    marginBottom: 24,
-  },
-  codeInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingVertical: 20,
-    fontSize: 24,
-    color: colors.text.primary,
-    backgroundColor: colors.surface,
-    letterSpacing: 8,
-  },
-  submitButton: {
-    marginTop: 8,
-  },
-  forgotPassword: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  forgotPasswordText: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  resendButton: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  resendText: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  switchText: {
-    color: colors.text.secondary,
-    fontSize: 14,
-  },
-  switchButton: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  socialButton: {
-    marginBottom: 12,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    color: colors.text.tertiary,
-    fontSize: 14,
-  },
-});

@@ -27,30 +27,30 @@ const lightTheme = {
 };
 
 const darkTheme = {
-  primary: '#4A90E2', // Blue accent
-  secondary: '#045c91', // Blue
-  accent: '#4B3E8E', // Deep Indigo
-  background: '#1A1A1A', // True dark background
-  surface: '#2D2D2D', // Dark grey for cards
-  card: '#2D2D2D', // Card background
+  primary: '#60A5FA', // Brighter blue for better visibility
+  secondary: '#3B82F6', // Blue
+  accent: '#8B5CF6', // Purple
+  background: '#0F0F0F', // Deeper dark background
+  surface: '#1F1F1F', // Dark grey for cards with better contrast
+  card: '#1F1F1F', // Card background with better contrast
   text: {
     primary: '#FFFFFF', // Pure white text for maximum contrast
-    secondary: '#E0E0E0', // Light grey text with better contrast
-    tertiary: '#A0A0A0', // Muted grey text with better contrast
-    inverse: '#1A1A1A', // Dark text for light backgrounds
+    secondary: '#E5E5E5', // Very light grey text with excellent contrast
+    tertiary: '#B0B0B0', // Muted grey text with good contrast
+    inverse: '#0F0F0F', // Dark text for light backgrounds
   },
-  border: '#404040', // More visible border
-  success: '#4ADE80', // Brighter green for better visibility
-  warning: '#FBBF24', // Brighter yellow for better visibility
-  error: '#F87171', // Brighter red for better visibility
+  border: '#333333', // More visible border with better contrast
+  success: '#22C55E', // Brighter green for better visibility
+  warning: '#F59E0B', // Brighter yellow for better visibility
+  error: '#EF4444', // Brighter red for better visibility
   inactive: '#6B7280',
   highlight: '#60A5FA', // Brighter blue for better visibility
   
-  // Action button colors - vibrant colors for dark mode with better contrast
-  invite: '#10B981', // Emerald green
-  clients: '#3B82F6', // Blue
+  // Action button colors - vibrant colors for dark mode with excellent contrast
+  invite: '#22C55E', // Emerald green
+  clients: '#60A5FA', // Bright blue
   contracts: '#F59E0B', // Amber
-  notes: '#8B5CF6', // Purple
+  notes: '#A855F7', // Purple
 };
 
 export { lightTheme, darkTheme };

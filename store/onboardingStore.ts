@@ -4,17 +4,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface OnboardingState {
   isOnboardingComplete: boolean;
+  roleSelectScreen: boolean;
   
   // Actions
   markOnboardingComplete: () => void;
   checkOnboardingStatus: () => Promise<void>;
   resetOnboarding: () => void;
+  setRoleSelectScreen: (show: boolean) => void;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set, get) => ({
       isOnboardingComplete: false,
+      roleSelectScreen: false,
 
       markOnboardingComplete: () => {
         set({ isOnboardingComplete: true });
@@ -27,7 +30,11 @@ export const useOnboardingStore = create<OnboardingState>()(
       },
 
       resetOnboarding: () => {
-        set({ isOnboardingComplete: false });
+        set({ isOnboardingComplete: false, roleSelectScreen: false });
+      },
+
+      setRoleSelectScreen: (show: boolean) => {
+        set({ roleSelectScreen: show });
       },
     }),
     {
