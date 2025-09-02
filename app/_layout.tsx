@@ -87,6 +87,10 @@ function RootLayoutNav() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="client-email" options={{ headerShown: false }} />
+        <Stack.Screen name="client-verify" options={{ headerShown: false }} />
+        <Stack.Screen name="client-dashboard" options={{ headerShown: false }} />
+        <Stack.Screen name="verify-code" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="project/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="client/[id]" options={{ headerShown: false }} />

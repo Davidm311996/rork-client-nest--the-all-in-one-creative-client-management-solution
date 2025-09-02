@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useOnboardingStore } from '@/store/onboardingStore';
 
 const { width } = Dimensions.get('window');
 
-// Design tokens from specification
+// Design tokens - solid colors only, no gradients or shadows
 const designTokens = {
   radii: { card: 28, chip: 16, button: 28, image_mask: 24 },
   spacing: { xs: 6, sm: 10, md: 16, lg: 24, xl: 32 },
-  shadow: { elev1: '0 8 24 rgba(0,0,0,0.08)', elev2: '0 12 32 rgba(0,0,0,0.12)' },
   pastels: {
     peach: '#FEE5D3',
     mint: '#DFF5EA',
@@ -48,14 +47,6 @@ const onboardingSlides = [
     bgColor: designTokens.pastels.mint,
     imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop&crop=center',
   },
-  {
-    id: 'role_select',
-    title: 'Who are you',
-    subtitle: 'Choose your role to get started',
-    badge: 'Almost there',
-    bgColor: designTokens.pastels.lilac,
-    isRoleSelect: true,
-  },
 ];
 
 const roleOptions = [
@@ -64,14 +55,12 @@ const roleOptions = [
     title: 'Creative professional',
     caption: 'Run projects and get paid',
     bgColor: designTokens.pastels.lilac,
-    route: '/auth'
   },
   {
     id: 'client',
     title: 'Client',
     caption: 'I was invited by a creative professional',
     bgColor: designTokens.pastels.sand,
-    route: '/auth'
   }
 ];
 
@@ -79,58 +68,77 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const { markOnboardingComplete } = useOnboardingStore();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [roleConfirmed, setRoleConfirmed] = useState(false);
+  
+  // Animation values for role selection
+  const selectedCardScale = new Animated.Value(1);
+  const unselectedCardOpacity = new Animated.Value(1);
+  const unselectedCardTranslateY = new Animated.Value(0);
 
   const handleNext = () => {
     if (currentSlide < onboardingSlides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      handleGetStarted();
+      setShowRoleSelect(true);
     }
   };
 
   const handleSkip = () => {
-    handleGetStarted();
+    setShowRoleSelect(true);
   };
 
-  const handleGetStarted = () => {
-    markOnboardingComplete();
-    router.replace('/auth');
+  const handleRoleSelect = (roleId: string) => {
+    if (roleConfirmed) return;
+    
+    setSelectedRole(roleId);
+    
+    // Animate the role selection
+    Animated.parallel([
+      Animated.timing(selectedCardScale, {
+        toValue: 1.05,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(unselectedCardOpacity, {
+        toValue: 0.5,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(unselectedCardTranslateY, {
+        toValue: -20,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
-  const handleRoleSelect = (role: string) => {
+  const handleRoleConfirm = () => {
+    if (!selectedRole) return;
+    
+    setRoleConfirmed(true);
     markOnboardingComplete();
-    router.replace('/auth');
+    
+    // Navigate based on role
+    if (selectedRole === 'creative_professional') {
+      router.replace('/auth?mode=creative');
+    } else {
+      router.replace('/client-email');
+    }
+  };
+
+  const handleBackToRoleSelect = () => {
+    setSelectedRole(null);
+    setRoleConfirmed(false);
+    
+    // Reset animations
+    selectedCardScale.setValue(1);
+    unselectedCardOpacity.setValue(1);
+    unselectedCardTranslateY.setValue(0);
   };
 
   const renderSlide = (slide: typeof onboardingSlides[0], index: number) => {
-    if (slide.isRoleSelect) {
-      return (
-        <View key={slide.id} style={[styles.slide, { width, backgroundColor: slide.bgColor }]}>
-          <View style={styles.roleSelectContainer}>
-            <View style={styles.badgeContainer}>
-              <Text style={styles.badgeText}>{slide.badge}</Text>
-            </View>
-            <Text style={styles.roleTitle}>{slide.title}</Text>
-            <Text style={styles.roleSubtitle}>{slide.subtitle}</Text>
-            
-            <View style={styles.roleOptionsContainer}>
-              {roleOptions.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
-                  style={[styles.roleCard, { backgroundColor: option.bgColor }]}
-                  onPress={() => handleRoleSelect(option.id)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.roleCardTitle}>{option.title}</Text>
-                  <Text style={styles.roleCardCaption}>{option.caption}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
-      );
-    }
-
     return (
       <View key={slide.id} style={[styles.slide, { width, backgroundColor: slide.bgColor }]}>
         <View style={styles.shopCard}>
@@ -153,6 +161,77 @@ export default function OnboardingScreen() {
     );
   };
 
+  const renderRoleSelect = () => {
+    return (
+      <View style={[styles.roleSelectScreen, { backgroundColor: designTokens.pastels.lilac }]}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+          {selectedRole && (
+            <View style={styles.header}>
+              <TouchableOpacity onPress={handleBackToRoleSelect} style={styles.backButton}>
+                <ArrowLeft size={24} color={designTokens.brand.text} />
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          <View style={styles.roleSelectContainer}>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>Almost there</Text>
+            </View>
+            <Text style={styles.roleTitle}>Who are you</Text>
+            <Text style={styles.roleSubtitle}>Choose your role to get started</Text>
+            
+            <View style={styles.roleOptionsContainer}>
+              {roleOptions.map((option, index) => {
+                const isSelected = selectedRole === option.id;
+                const isUnselected = selectedRole && selectedRole !== option.id;
+                
+                const baseCardStyle = [styles.roleCard, { backgroundColor: option.bgColor }];
+                const cardStyle = isSelected ? [...baseCardStyle, styles.selectedRoleCard] : baseCardStyle;
+                let animatedStyle = {};
+                
+                if (isSelected) {
+                  animatedStyle = {
+                    transform: [{ scale: selectedCardScale }]
+                  };
+                } else if (isUnselected) {
+                  animatedStyle = {
+                    opacity: unselectedCardOpacity,
+                    transform: [{ translateY: unselectedCardTranslateY }]
+                  };
+                }
+                
+                return (
+                  <Animated.View key={option.id} style={animatedStyle}>
+                    <TouchableOpacity
+                      style={cardStyle}
+                      onPress={() => handleRoleSelect(option.id)}
+                      activeOpacity={0.8}
+                      disabled={roleConfirmed}
+                    >
+                      <Text style={styles.roleCardTitle}>{option.title}</Text>
+                      <Text style={styles.roleCardCaption}>{option.caption}</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })}
+            </View>
+            
+            {selectedRole && !roleConfirmed && (
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleRoleConfirm}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.confirmButtonText}>Continue</Text>
+                <ArrowRight size={20} color={designTokens.brand.text} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  };
+
   const renderDots = () => (
     <View style={styles.dotsContainer}>
       {onboardingSlides.map((_, index) => (
@@ -169,7 +248,10 @@ export default function OnboardingScreen() {
 
   const currentSlideData = onboardingSlides[currentSlide];
   const isLastSlide = currentSlide === onboardingSlides.length - 1;
-  const isRoleSelectSlide = currentSlideData?.isRoleSelect;
+  
+  if (showRoleSelect) {
+    return renderRoleSelect();
+  }
 
   const styles = StyleSheet.create({
     container: {
@@ -203,26 +285,12 @@ export default function OnboardingScreen() {
       paddingHorizontal: designTokens.spacing.lg,
     },
     shopCard: {
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderRadius: designTokens.radii.card,
       padding: designTokens.spacing.lg,
       alignItems: 'center',
       width: width - (designTokens.spacing.xl * 2),
       maxWidth: 340,
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 12 },
-          shadowOpacity: 0.12,
-          shadowRadius: 32,
-        },
-        android: {
-          elevation: 12,
-        },
-        web: {
-          boxShadow: designTokens.shadow.elev2,
-        },
-      }),
     },
     badgeContainer: {
       backgroundColor: designTokens.brand.primary,
@@ -292,20 +360,33 @@ export default function OnboardingScreen() {
       borderRadius: designTokens.radii.card,
       padding: designTokens.spacing.lg,
       alignItems: 'center',
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.08,
-          shadowRadius: 24,
-        },
-        android: {
-          elevation: 8,
-        },
-        web: {
-          boxShadow: designTokens.shadow.elev1,
-        },
-      }),
+      marginVertical: designTokens.spacing.sm,
+    },
+    selectedRoleCard: {
+      borderWidth: 3,
+      borderColor: designTokens.brand.primary,
+    },
+    roleSelectScreen: {
+      flex: 1,
+    },
+    backButton: {
+      padding: designTokens.spacing.sm,
+    },
+    confirmButton: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: designTokens.radii.button,
+      paddingHorizontal: designTokens.spacing.lg,
+      paddingVertical: designTokens.spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: designTokens.spacing.sm,
+      marginTop: designTokens.spacing.xl,
+    },
+    confirmButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: designTokens.brand.text,
     },
     roleCardTitle: {
       fontSize: 18,
@@ -349,20 +430,6 @@ export default function OnboardingScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       gap: designTokens.spacing.sm,
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-        },
-        android: {
-          elevation: 6,
-        },
-        web: {
-          boxShadow: '0 4 12 rgba(0,0,0,0.1)',
-        },
-      }),
     },
     nextButtonText: {
       fontSize: 16,
@@ -374,13 +441,11 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { backgroundColor: currentSlideData?.bgColor || designTokens.pastels.peach }]}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {!isRoleSelectSlide && (
-          <View style={styles.header}>
-            <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-              <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        </View>
 
         <ScrollView
           horizontal
@@ -396,21 +461,19 @@ export default function OnboardingScreen() {
           {onboardingSlides.map(renderSlide)}
         </ScrollView>
 
-        {!isRoleSelectSlide && (
-          <View style={styles.footer}>
-            {renderDots()}
-            <TouchableOpacity
-              style={styles.nextButton}
-              onPress={handleNext}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.nextButtonText}>
-                {isLastSlide ? "Get started" : "Next"}
-              </Text>
-              <ArrowRight size={20} color={designTokens.brand.text} />
-            </TouchableOpacity>
-          </View>
-        )}
+        <View style={styles.footer}>
+          {renderDots()}
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={handleNext}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.nextButtonText}>
+              {isLastSlide ? "Get started" : "Next"}
+            </Text>
+            <ArrowRight size={20} color={designTokens.brand.text} />
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </View>
   );

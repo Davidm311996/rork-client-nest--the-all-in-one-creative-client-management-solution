@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useThemeStore } from '@/store/themeStore';
-import { createTypography } from '@/constants/typography';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -13,7 +12,6 @@ export default function SplashScreen() {
   const { isAuthenticated, checkAuthStatus, validateInviteToken } = useAuthStore();
   const { isOnboardingComplete, checkOnboardingStatus } = useOnboardingStore();
   const { colors } = useThemeStore();
-  const typography = createTypography(colors);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -79,6 +77,7 @@ export default function SplashScreen() {
       marginBottom: 16,
     },
     logoText: {
+      fontSize: 24,
       color: colors.text.primary,
       fontWeight: '700',
     },
@@ -92,7 +91,7 @@ export default function SplashScreen() {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           <View style={styles.logoPlaceholder} />
-          <Text style={[typography.h2, styles.logoText]}>Client Nest</Text>
+          <Text style={styles.logoText}>Client Nest</Text>
         </View>
         <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
       </View>
