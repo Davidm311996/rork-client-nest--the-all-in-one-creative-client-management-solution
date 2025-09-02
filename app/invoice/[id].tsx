@@ -408,7 +408,7 @@ export default function InvoiceDetailScreen() {
               </Text>
             </View>
             <View style={styles.statusContainer}>
-              <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(invoice.status)}20` }]}>
+              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(invoice.status) + '20' }]}>
                 {getStatusIcon(invoice.status)}
                 <Text style={[styles.statusText, { color: getStatusColor(invoice.status) }]}>
                   {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
