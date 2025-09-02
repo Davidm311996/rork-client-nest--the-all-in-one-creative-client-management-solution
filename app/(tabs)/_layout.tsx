@@ -2,13 +2,16 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { Platform, Dimensions, TouchableOpacity } from "react-native";
 import * as Haptics from 'expo-haptics';
-import { Home, FolderOpen, MessageCircle, User } from "lucide-react-native";
+import { Home, FolderOpen, MessageCircle, User, CreditCard, FileText } from "lucide-react-native";
 import { useThemeStore } from '@/store/themeStore';
+import { useAuthStore } from '@/store/authStore';
 
 const { height: screenHeight } = Dimensions.get('window');
 
 export default function TabLayout() {
   const { colors } = useThemeStore();
+  const { user } = useAuthStore();
+  const isClient = user?.role === 'client';
   
   return (
     <Tabs
@@ -85,21 +88,33 @@ export default function TabLayout() {
       <Tabs.Screen
         name="projects"
         options={{
-          title: "Projects",
+          title: isClient ? "Projects" : "Projects",
           tabBarIcon: ({ color, size }) => (
             <FolderOpen size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chat",
-          tabBarIcon: ({ color, size }) => (
-            <MessageCircle size={size} color={color} />
-          ),
-        }}
-      />
+      {isClient ? (
+        <Tabs.Screen
+          name="chat"
+          options={{
+            title: "Messages",
+            tabBarIcon: ({ color, size }) => (
+              <MessageCircle size={size} color={color} />
+            ),
+          }}
+        />
+      ) : (
+        <Tabs.Screen
+          name="chat"
+          options={{
+            title: "Chat",
+            tabBarIcon: ({ color, size }) => (
+              <MessageCircle size={size} color={color} />
+            ),
+          }}
+        />
+      )}
       <Tabs.Screen
         name="profile"
         options={{

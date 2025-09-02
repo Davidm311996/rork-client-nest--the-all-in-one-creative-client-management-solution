@@ -12,12 +12,14 @@ import { Project } from '@/types/project';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { SubscriptionTier } from '@/types/subscription';
+import { useAuthStore } from '@/store/authStore';
 
 export default function ProjectsScreen() {
   const router = useRouter();
   const { colors } = useThemeStore();
   const { projects, isLoading, fetchProjects } = useProjectStore();
   const { canCreateProject, getCurrentPlan } = useSubscriptionStore();
+  const { user } = useAuthStore();
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
@@ -184,15 +186,21 @@ export default function ProjectsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Projects</Text>
-          <Text style={styles.headerSubtitle}>Manage your projects</Text>
+          <Text style={styles.headerTitle}>
+            {user?.role === 'client' ? 'Your Projects' : 'Projects'}
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            {user?.role === 'client' ? 'View your project progress' : 'Manage your projects'}
+          </Text>
         </View>
-        <TouchableOpacity 
-          style={styles.newProjectButton}
-          onPress={handleNewProject}
-        >
-          <Plus size={24} color={colors.text.inverse} />
-        </TouchableOpacity>
+        {user?.role === 'creative' && (
+          <TouchableOpacity 
+            style={styles.newProjectButton}
+            onPress={handleNewProject}
+          >
+            <Plus size={24} color={colors.text.inverse} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.searchContainer}>
@@ -231,14 +239,23 @@ export default function ProjectsScreen() {
           <View style={styles.emptyIcon}>
             <FolderOpen size={64} color={colors.primary} />
           </View>
-          <Text style={styles.emptyTitle}>No projects yet</Text>
+          <Text style={styles.emptyTitle}>
+            {user?.role === 'client' ? 'No projects yet' : 'No projects yet'}
+          </Text>
           <Text style={styles.emptyDescription}>
-            {activeFilter === 'All' && searchQuery === ''
-              ? "Create your first project to get started"
-              : searchQuery !== ''
-              ? "No projects match your search"
-              : `No ${activeFilter.toLowerCase()} projects found`
-            }
+            {user?.role === 'client' ? (
+              activeFilter === 'All' && searchQuery === ''
+                ? "Your creative will add your first project here"
+                : searchQuery !== ''
+                ? "No projects match your search"
+                : `No ${activeFilter.toLowerCase()} projects found`
+            ) : (
+              activeFilter === 'All' && searchQuery === ''
+                ? "Create your first project to get started"
+                : searchQuery !== ''
+                ? "No projects match your search"
+                : `No ${activeFilter.toLowerCase()} projects found`
+            )}
           </Text>
         </View>
       )}

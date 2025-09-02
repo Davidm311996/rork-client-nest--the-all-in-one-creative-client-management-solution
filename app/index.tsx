@@ -9,7 +9,7 @@ import { useThemeStore } from '@/store/themeStore';
 export default function SplashScreen() {
   const router = useRouter();
   const { inviteToken } = useLocalSearchParams();
-  const { isAuthenticated, checkAuthStatus, validateInviteToken } = useAuthStore();
+  const { isAuthenticated, user, checkAuthStatus, validateInviteToken } = useAuthStore();
   const { isOnboardingComplete, checkOnboardingStatus } = useOnboardingStore();
   const { colors } = useThemeStore();
 
@@ -43,7 +43,12 @@ export default function SplashScreen() {
               router.replace('/auth');
             }
           } else {
-            router.replace('/(tabs)');
+            // Route to appropriate dashboard based on user role
+            if (user?.role === 'client') {
+              router.replace('/(tabs)');
+            } else {
+              router.replace('/(tabs)');
+            }
           }
         }, 2000); // 2 second splash
       } catch (error) {

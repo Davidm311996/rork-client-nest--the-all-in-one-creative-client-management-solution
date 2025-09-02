@@ -69,17 +69,19 @@ export const useAuthStore = create<AuthState>()(
           // Simulate API call
           await new Promise(resolve => setTimeout(resolve, 1000));
           
-          // Mock user data
+          // Mock user data - determine role based on email for testing
+          const isClientEmail = email.includes('client') || email.includes('test');
           const user: User = {
             id: '1',
-            name: 'David Johnson',
+            name: isClientEmail ? 'Sarah Client' : 'David Johnson',
             email,
-            role: 'creative',
-            businessName: 'Creative Studio',
+            role: isClientEmail ? 'client' : 'creative',
+            businessName: isClientEmail ? undefined : 'Creative Studio',
             phone: '+1 (555) 123-4567',
             address: '123 Creative Street, Design City, DC 12345',
             createdAt: new Date().toISOString(),
             isEmailVerified: true,
+            linkedCreativeId: isClientEmail ? 'creative-1' : undefined,
           };
           
           set({ 

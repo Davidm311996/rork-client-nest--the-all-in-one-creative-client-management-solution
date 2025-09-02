@@ -472,6 +472,20 @@ export default function HomeScreen() {
       color: colors.text.secondary,
       textAlign: 'center',
     },
+    emptyState: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 24,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
   });
 
   // Different quick actions for Creative vs Client
@@ -483,22 +497,16 @@ export default function HomeScreen() {
       onPress: () => router.push('/invite-client'),
     },
     {
-      title: 'New\nBooking',
-      icon: <Calendar size={18} color={colors.text.inverse} />,
+      title: 'New\nProject',
+      icon: <Plus size={18} color={colors.text.inverse} />,
       backgroundColor: colors.clients,
-      onPress: () => router.push('/booking'),
+      onPress: () => router.push('/new-project'),
     },
     {
-      title: 'Upload\nFiles',
-      icon: <Upload size={18} color={colors.text.inverse} />,
+      title: 'New\nInvoice',
+      icon: <FileText size={18} color={colors.text.inverse} />,
       backgroundColor: colors.contracts,
-      onPress: () => router.push('/files'),
-    },
-    {
-      title: 'Notes',
-      icon: <StickyNote size={18} color={colors.text.inverse} />,
-      backgroundColor: colors.notes,
-      onPress: () => router.push('/notes'),
+      onPress: () => router.push('/new-invoice'),
     },
   ];
 
@@ -510,21 +518,15 @@ export default function HomeScreen() {
       onPress: () => router.push('/(tabs)/chat'),
     },
     {
-      title: 'Download\nFiles',
+      title: 'View\nFiles',
       icon: <Upload size={18} color={colors.text.inverse} />,
       backgroundColor: colors.clients,
       onPress: () => router.push('/files'),
     },
     {
-      title: 'Sign\nContract',
-      icon: <StickyNote size={18} color={colors.text.inverse} />,
+      title: 'Pay\nInvoices',
+      icon: <CreditCard size={18} color={colors.text.inverse} />,
       backgroundColor: colors.contracts,
-      onPress: () => router.push('/contracts'),
-    },
-    {
-      title: 'Make\nPayment',
-      icon: <Coins size={18} color={colors.text.inverse} />,
-      backgroundColor: colors.notes,
       onPress: () => router.push('/payments'),
     },
   ];
@@ -805,8 +807,8 @@ export default function HomeScreen() {
           </Text>
         </View>
         
-        {/* Upgrade Banner */}
-        {!isProPlan && (
+        {/* Upgrade Banner - Only for Creative users */}
+        {user?.role === 'creative' && !isProPlan && (
           <TouchableOpacity 
             style={styles.upgradeBanner}
             onPress={() => router.push('/subscription')}
@@ -828,6 +830,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
         
+        {/* Client Status Banner */}
+        {user?.role === 'client' && (
+          <View style={styles.upgradeBanner}>
+            <View style={styles.upgradeContent}>
+              <View style={styles.upgradeIcon}>
+                <CheckCircle size={24} color={colors.success} />
+              </View>
+              <View style={styles.upgradeTextContainer}>
+                <Text style={styles.upgradeTitle}>Project Status</Text>
+                <Text style={styles.upgradeDescription}>All systems running smoothly</Text>
+              </View>
+            </View>
+          </View>
+        )}
+        
 
         
 
@@ -836,39 +853,26 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.invite }]}
-              onPress={() => router.push('/invite-client')}
-              activeOpacity={0.8}
-            >
-              <UserPlus size={24} color={colors.text.inverse} />
-              <Text style={styles.actionButtonText}>Invite Client</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.clients }]}
-              onPress={() => router.push('/new-project')}
-              activeOpacity={0.8}
-            >
-              <Plus size={24} color={colors.text.inverse} />
-              <Text style={styles.actionButtonText}>New Project</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.contracts }]}
-              onPress={() => router.push('/new-invoice')}
-              activeOpacity={0.8}
-            >
-              <FileText size={24} color={colors.text.inverse} />
-              <Text style={styles.actionButtonText}>Invoices</Text>
-            </TouchableOpacity>
+            {quickActions.map((action, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.actionButton, { backgroundColor: action.backgroundColor }]}
+                onPress={action.onPress}
+                activeOpacity={0.8}
+              >
+                {action.icon}
+                <Text style={styles.actionButtonText}>{action.title}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
         {/* Active Projects Preview */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Active Projects</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>
+              {user?.role === 'client' ? 'Your Projects' : 'Active Projects'}
+            </Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/projects')}>
               <Text style={styles.seeAllText}>View All</Text>
             </TouchableOpacity>
@@ -888,8 +892,12 @@ export default function HomeScreen() {
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.projectClientName}>{project.clientName}</Text>
-                  <Text style={styles.projectDescription}>{project.title}</Text>
+                  <Text style={styles.projectClientName}>
+                    {user?.role === 'client' ? project.title : project.clientName}
+                  </Text>
+                  <Text style={styles.projectDescription}>
+                    {user?.role === 'client' ? `Creative: ${project.clientName}` : project.title}
+                  </Text>
                   
                   <View style={styles.projectFooter}>
                     <View style={[styles.statusBadge, getStatusBadgeStyle(project.status)]}>
@@ -902,14 +910,23 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               ))
             ) : (
-              <TouchableOpacity
-                style={styles.createProjectCard}
-                onPress={() => router.push('/new-project')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.createProjectText}>Create New Project</Text>
-                <Plus size={24} color={colors.primary} />
-              </TouchableOpacity>
+              user?.role === 'creative' ? (
+                <TouchableOpacity
+                  style={styles.createProjectCard}
+                  onPress={() => router.push('/new-project')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.createProjectText}>Create New Project</Text>
+                  <Plus size={24} color={colors.primary} />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyStateText}>
+                    Your creative will add your first project.{"\n"}
+                    You will see it here.
+                  </Text>
+                </View>
+              )
             )}
           </View>
         </View>

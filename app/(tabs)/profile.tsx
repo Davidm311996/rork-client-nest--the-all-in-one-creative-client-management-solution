@@ -31,6 +31,7 @@ export default function ProfileScreen() {
   
   const currentPlan = getCurrentPlan();
   const isProPlan = subscription.tier === 'mid' || subscription.tier === 'top';
+  const isClient = user?.role === 'client';
   
   const handleLogout = () => {
     Alert.alert(
@@ -198,7 +199,9 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>Profile</Text>
-          <Text style={styles.headerSubtitle}>Manage your account and preferences</Text>
+          <Text style={styles.headerSubtitle}>
+            {isClient ? 'Manage your account' : 'Manage your account and preferences'}
+          </Text>
         </View>
         <TouchableOpacity 
           style={styles.settingsButton}
@@ -255,21 +258,25 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>Management</Text>
+        <Text style={styles.sectionTitle}>
+          {isClient ? 'Account' : 'Management'}
+        </Text>
         <View style={styles.managementCard}>
-          <TouchableOpacity 
-            style={styles.managementItem}
-            onPress={() => router.push('/clients')}
-          >
-            <View style={[styles.managementIcon, { backgroundColor: colors.invite + '20' }]}>
-              <Users size={24} color={colors.invite} />
-            </View>
-            <View style={styles.managementContent}>
-              <Text style={styles.managementTitle}>Clients</Text>
-              <Text style={styles.managementDescription}>Manage your client relationships</Text>
-            </View>
-            <ChevronRight size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
+          {!isClient && (
+            <TouchableOpacity 
+              style={styles.managementItem}
+              onPress={() => router.push('/clients')}
+            >
+              <View style={[styles.managementIcon, { backgroundColor: colors.invite + '20' }]}>
+                <Users size={24} color={colors.invite} />
+              </View>
+              <View style={styles.managementContent}>
+                <Text style={styles.managementTitle}>Clients</Text>
+                <Text style={styles.managementDescription}>Manage your client relationships</Text>
+              </View>
+              <ChevronRight size={20} color={colors.text.tertiary} />
+            </TouchableOpacity>
+          )}
           
           <TouchableOpacity 
             style={styles.managementItem}
@@ -280,24 +287,60 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.managementContent}>
               <Text style={styles.managementTitle}>Files</Text>
-              <Text style={styles.managementDescription}>Manage your project files</Text>
+              <Text style={styles.managementDescription}>
+                {isClient ? 'View your project files' : 'Manage your project files'}
+              </Text>
             </View>
             <ChevronRight size={20} color={colors.text.tertiary} />
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={styles.managementItem}
-            onPress={() => router.push('/contracts')}
-          >
-            <View style={[styles.managementIcon, { backgroundColor: colors.contracts + '20' }]}>
-              <FileText size={24} color={colors.contracts} />
-            </View>
-            <View style={styles.managementContent}>
-              <Text style={styles.managementTitle}>Contracts</Text>
-              <Text style={styles.managementDescription}>Create and manage contracts</Text>
-            </View>
-            <ChevronRight size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
+          {!isClient && (
+            <TouchableOpacity 
+              style={styles.managementItem}
+              onPress={() => router.push('/contracts')}
+            >
+              <View style={[styles.managementIcon, { backgroundColor: colors.contracts + '20' }]}>
+                <FileText size={24} color={colors.contracts} />
+              </View>
+              <View style={styles.managementContent}>
+                <Text style={styles.managementTitle}>Contracts</Text>
+                <Text style={styles.managementDescription}>Create and manage contracts</Text>
+              </View>
+              <ChevronRight size={20} color={colors.text.tertiary} />
+            </TouchableOpacity>
+          )}
+          
+          {isClient && (
+            <TouchableOpacity 
+              style={styles.managementItem}
+              onPress={() => router.push('/payments')}
+            >
+              <View style={[styles.managementIcon, { backgroundColor: colors.contracts + '20' }]}>
+                <CreditCard size={24} color={colors.contracts} />
+              </View>
+              <View style={styles.managementContent}>
+                <Text style={styles.managementTitle}>Invoices & Payments</Text>
+                <Text style={styles.managementDescription}>View and pay your invoices</Text>
+              </View>
+              <ChevronRight size={20} color={colors.text.tertiary} />
+            </TouchableOpacity>
+          )}
+          
+          {!isClient && (
+            <TouchableOpacity 
+              style={styles.managementItem}
+              onPress={() => router.push('/subscription')}
+            >
+              <View style={[styles.managementIcon, { backgroundColor: colors.primary + '20' }]}>
+                <Crown size={24} color={colors.primary} />
+              </View>
+              <View style={styles.managementContent}>
+                <Text style={styles.managementTitle}>Subscription</Text>
+                <Text style={styles.managementDescription}>Manage your plan and billing</Text>
+              </View>
+              <ChevronRight size={20} color={colors.text.tertiary} />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Sign Out Section */}
