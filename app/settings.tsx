@@ -22,7 +22,7 @@ import {
 import { useRouter } from 'expo-router';
 import Header from '@/components/Header';
 
-import typography from '@/constants/typography';
+
 import { useThemeStore } from '@/store/themeStore';
 import { useCurrencyStore } from '@/store/currencyStore';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
@@ -34,7 +34,7 @@ export default function SettingsScreen() {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [autoDownload, setAutoDownload] = useState(false);
   const [biometricAuth, setBiometricAuth] = useState(false);
-  const { theme, toggleTheme, colors } = useThemeStore();
+  const { theme, setTheme, getEffectiveTheme, colors } = useThemeStore();
   const { selectedCurrency } = useCurrencyStore();
   const { subscription } = useSubscriptionStore();
   
@@ -55,7 +55,9 @@ export default function SettingsScreen() {
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={styles.settingIconContainer}>{icon}</View>
+      <View style={styles.settingIconContainer}>
+        {icon}
+      </View>
       <View style={styles.settingContent}>
         <Text style={styles.settingTitle}>{title}</Text>
         {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
@@ -156,15 +158,22 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Appearance</Text>
           <View style={styles.settingsCard}>
             {renderSettingItem(
-              theme === 'dark' ? <Moon size={22} color={colors.primary} /> : <Sun size={22} color={colors.primary} />,
+              getEffectiveTheme() === 'dark' ? <Moon size={22} color={colors.primary} /> : <Sun size={22} color={colors.primary} />,
               "Theme",
-              `Currently using ${theme} mode`,
-              <Switch
-                value={theme === 'dark'}
-                onValueChange={toggleTheme}
-                trackColor={{ false: colors.inactive, true: colors.primary }}
-                thumbColor={colors.text.primary}
-              />
+              theme === 'system' ? 'Follow system' : `${theme} mode`,
+              undefined,
+              () => {
+                Alert.alert(
+                  'Select Theme',
+                  'Choose your preferred theme',
+                  [
+                    { text: 'Light', onPress: () => setTheme('light') },
+                    { text: 'Dark', onPress: () => setTheme('dark') },
+                    { text: 'Follow System', onPress: () => setTheme('system') },
+                    { text: 'Cancel', style: 'cancel' }
+                  ]
+                );
+              }
             )}
             {renderSettingItem(
               <Globe size={22} color={colors.primary} />,

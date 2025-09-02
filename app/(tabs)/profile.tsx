@@ -43,7 +43,7 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: () => {
             logout();
-            router.replace('/auth');
+            router.replace('/onboarding');
           }
         }
       ]
@@ -295,6 +295,23 @@ export default function ProfileScreen() {
             <View style={styles.managementContent}>
               <Text style={styles.managementTitle}>Contracts</Text>
               <Text style={styles.managementDescription}>Create and manage contracts</Text>
+            </View>
+            <ChevronRight size={20} color={colors.text.tertiary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Sign Out Section */}
+        <View style={styles.managementCard}>
+          <TouchableOpacity 
+            style={styles.managementItem}
+            onPress={handleLogout}
+          >
+            <View style={[styles.managementIcon, { backgroundColor: colors.error + '20' }]}>
+              <LogOut size={24} color={colors.error} />
+            </View>
+            <View style={styles.managementContent}>
+              <Text style={styles.managementTitle}>Sign Out</Text>
+              <Text style={styles.managementDescription}>Sign out of your account</Text>
             </View>
             <ChevronRight size={20} color={colors.text.tertiary} />
           </TouchableOpacity>

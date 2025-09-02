@@ -24,10 +24,6 @@ export default function Card({ children, style, elevation = true }: CardProps) {
     },
   });
   
-  if (!children) {
-    return null;
-  }
-  
   return (
     <View style={[styles.card, elevation && styles.elevation, style]}>
       {children}

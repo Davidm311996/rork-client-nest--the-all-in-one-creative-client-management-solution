@@ -64,12 +64,13 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const { colors, theme } = useThemeStore();
+  const { colors, getEffectiveTheme } = useThemeStore();
+  const effectiveTheme = getEffectiveTheme();
   
   return (
     <>
       <StatusBar 
-        style={theme === 'light' ? 'dark' : 'light'} 
+        style={effectiveTheme === 'light' ? 'dark' : 'light'} 
         backgroundColor={colors.background}
         translucent={false}
       />

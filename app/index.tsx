@@ -4,14 +4,16 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
-import colors from '@/constants/colors';
-import typography from '@/constants/typography';
+import { useThemeStore } from '@/store/themeStore';
+import { createTypography } from '@/constants/typography';
 
 export default function SplashScreen() {
   const router = useRouter();
   const { inviteToken } = useLocalSearchParams();
   const { isAuthenticated, checkAuthStatus, validateInviteToken } = useAuthStore();
   const { isOnboardingComplete, checkOnboardingStatus } = useOnboardingStore();
+  const { colors } = useThemeStore();
+  const typography = createTypography(colors);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -55,6 +57,36 @@ export default function SplashScreen() {
     initializeApp();
   }, [inviteToken]);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    logoContainer: {
+      alignItems: 'center',
+      marginBottom: 40,
+    },
+    logoPlaceholder: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: colors.primary,
+      marginBottom: 16,
+    },
+    logoText: {
+      color: colors.text.primary,
+      fontWeight: '700',
+    },
+    loader: {
+      marginTop: 20,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.content}>
@@ -67,33 +99,3 @@ export default function SplashScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.primary,
-    marginBottom: 16,
-  },
-  logoText: {
-    color: colors.text.primary,
-    fontWeight: '700',
-  },
-  loader: {
-    marginTop: 20,
-  },
-});
