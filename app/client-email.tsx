@@ -25,30 +25,11 @@ export default function ClientEmailScreen() {
     }
 
     try {
-      // Mock invite validation - in real app this would check server
-      const mockInvites = [
-        'client@example.com',
-        'john@company.com',
-        'sarah@studio.com'
-      ];
-      
-      const hasInvite = mockInvites.includes(email.toLowerCase());
-      
-      if (hasInvite) {
-        // Send verification code and navigate to verification
-        router.push({ pathname: '/client-verify', params: { email } });
-      } else {
-        Alert.alert(
-          'Invitation Required',
-          'This email is not linked to any invitation. Please contact your creative professional to be invited.',
-          [
-            { text: 'Try Another Email', style: 'default' },
-            { text: 'OK', style: 'cancel' }
-          ]
-        );
-      }
+      // Allow all emails for now - no invite validation
+      // Send verification code and navigate to verification
+      router.push({ pathname: '/client-verify', params: { email } });
     } catch {
-      Alert.alert('Error', 'Failed to check invitation. Please try again.');
+      Alert.alert('Error', 'Failed to process request. Please try again.');
     }
   };
 
@@ -147,7 +128,7 @@ export default function ClientEmailScreen() {
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Client access</Text>
               <Text style={styles.subtitle}>
-                Enter the email your creative used to invite you
+                Enter your email address to continue
               </Text>
             </View>
 
@@ -177,7 +158,7 @@ export default function ClientEmailScreen() {
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>
-                Need help? Contact your creative professional for assistance.
+                We&apos;ll send you a verification code to confirm your email.
               </Text>
             </View>
           </View>
